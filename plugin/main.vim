@@ -2,16 +2,17 @@ let s:parsed_list = []
 let s:engine_string = "hello\nyes\nhi"
 let s:current_row = line(".")
 let s:current_col = col(".")
-let file_name = expand('%:t:r')
-let extension = expand('%:e')
+let s:file_name = expand('%:t:r')
+let s:extension = expand('%:e')
 let g:POPUP_ID = 0
 
-highlight Pmenu ctermbg=gray guibg=gray
+highlight Pmenu ctermbg=white guibg=black
 
 " Autocommand Groups-------------------------
 
 augroup popups
   autocmd TextChangedI * :call popup_close(g:POPUP_ID)
+  autocmd TextChangedI * :call Parse_Engine_String()
   autocmd TextChangedI * :let g:POPUP_ID=popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor+2"})
 augroup END
 
@@ -63,19 +64,19 @@ function Close_Popup()
   endif
 endfunction
 
-function Parse_Engine_String() 
-  echom s:engine_string
+function Parse_Engine_String()
+  let s:current_row = line(".")
+  let s:current_col = col(".")
+  let s:engine_string = libcall("libclangpletion.dll", "complete", s:file_name . "." . s:extension . "\n" . s:current_row . "\n" . s:current_col)
   let s:parsed_list = split(s:engine_string, "\n")
 endfunction
-
-:call Parse_Engine_String()
 
 " Keybinding Changes--------------------------
 
 inoremap -r <esc>:call Close_Popup()<cr>i<Right>
-inoremap <Down> <esc>:call NextElem()<cr>i<Right>
-inoremap <Up> <esc>:call PrevElem()<cr>i<Right>
-inoremap <TAB> <esc>bdw:call Select()<cr>i<Right>
+inoremap <expr> <Down> g:POPUP_ID != 0 ? "<esc>:call NextElem()<cr>i<Right>" : "\<Down>"
+inoremap <expr> <Up> g:POPUP_ID != 0 ? "<esc>:call PrevElem()<cr>i<Right>" : "\<UP>"
+inoremap <expr> <TAB> g:POPUP_ID != 0 ? "<esc>bdw:call Select()<cr>i<Right>" : "\<TAB>"
 inoremap <Right> <esc>:call Close_Popup()<cr>i<Right><Right>
 inoremap <Left> <esc>:call Close_Popup()<cr>i
 

@@ -5,7 +5,7 @@
 #define FILENAME args[0]
 #define ROW parse_int(args[1])
 #define COL parse_int(args[2])
-#define COMP_MAX BUFSIZ
+#define COMP_MAX 100 
 /*
 int main() {
   printf("%s\n", complete("complete.c\n12\n11")); 
@@ -53,8 +53,8 @@ char *complete(char *location) {
   );
 
   if (unit == 0) {
-    printf("Unit Broke\n");
-    return NULL;
+    //printf("Unit Broke\n");
+    return "NULL";
   }
 
   // Code Complete at the specified location
@@ -69,8 +69,8 @@ char *complete(char *location) {
   );
 
   if (comp_results == NULL) {
-    printf("Results Broke\n");
-    return NULL;
+    //printf("Results Broke\n");
+    return "NULL";
   }
 
   /* 
@@ -153,7 +153,7 @@ char *complete(char *location) {
     }  
   }
 
-  printf("Recs:\n\n%s\n", recommendations);
+  //printf("Recs:\n\n%s\n", recommendations);
 
   return recommendations;
 }
