@@ -65,9 +65,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
-Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `zbostock56`, `Clangpletion`, `Zack-Bostock`, `Zack-Bostock`, `email`, `email_client`, `project_title`, `project_description`
+<!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -86,7 +84,7 @@ Here's a blank template to get started: To avoid retyping too much info. Do a se
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
+<!-- This is an example of how you may give instructions on setting up your project locally.
 To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
@@ -95,11 +93,11 @@ This is an example of how to list things you need to use the software and how to
 * npm
   ```sh
   npm install npm@latest -g
-  ```
+  ``` -->
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
+<!-- 1. Get a free API Key at [https://example.com](https://example.com)
 2. Clone the repo
    ```sh
    git clone https://github.com/github_username/repo_name.git
@@ -113,16 +111,16 @@ This is an example of how to list things you need to use the software and how to
    const API_KEY = 'ENTER YOUR API';
    ```
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+<p align="right">(<a href="#top">back to top</a>)</p> -->
 
 
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+[Usage Gif](https://media.giphy.com/media/YLTlQxs1GUJArBUPN1/giphy.gif)
 
-<div style="width:100%;height:0;padding-bottom:56%;position:relative;"><iframe src="https://giphy.com/embed/ANrnqp93Hp7gMJ0ug9" width="100%" height="100%" style="position:absolute" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></div><p><a href="https://giphy.com/gifs/ANrnqp93Hp7gMJ0ug9">via GIPHY</a></p>
+Clangpletion works just the same as any other completion engine. Type and the completion engine will give you suggestions!
 
 _For more examples, please refer to the [Documentation](https://vimhelp.org/)_
 
