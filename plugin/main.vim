@@ -94,7 +94,9 @@ if s:extension == "c"
     let l:last_word = "" 
     let l:col = Get_Last_Token()
     while l:col <= col('.')
-      let l:last_word = l:last_word . getline(".")[l:col]
+      if getline(".")[l:col] != ' '
+        let l:last_word = l:last_word . getline(".")[l:col]
+      endif
       let l:col += 1
     endwhile
     return l:last_word
