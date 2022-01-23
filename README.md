@@ -108,7 +108,7 @@ This is an example of how to list things you need to use the software and how to
 
 ## Usage
 
-<div style="width:100%;height:0;padding-bottom:56%;position:relative;"><iframe src="images/giphy.mp4" width="100%" height="100%" style="position:absolute" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></div><p><a href="https://giphy.com/gifs/0X8GgNvwA26TPvfGLA">via GIPHY</a></p>
+[UsageGif](https://github.com/zbostock56/Clangpletion/blob/main/images/giphy.mp4)
 
 Clangpletion works just the same as any other completion engine. Type and the completion engine will give you suggestions!
 
