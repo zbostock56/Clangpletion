@@ -1,4 +1,6 @@
-<div id="top"></div>
+
+<div>
+<span>
 
 [![Contributors][contributors-shield]](https://github.com/zbostock56/Clangpletion/graphs/contributors)
 
@@ -7,12 +9,16 @@
 [![MIT License][license-shield]](https://github.com/zbostock56/Clangpletion/blob/main/LICENSE)
 
 [![LinkedIn][linkedin-shield]](https://www.linkedin.com/in/zack-bostock-932a5921b/)
+</span>
+</div>
+
+
 
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <a href="https://github.com/zbostock56/Clangpletion/tree/main/images/Clangpletion Logo.png">
-    <img src="images/Clangpletion Logo.png" alt="Logo" width="200" height="200">
+    <img src="images/Clangpletion Logo.png" alt="Logo" width="500" height="500">
   </a>
 <h1 align="center"></h1>
 
@@ -67,7 +73,7 @@
 
 <!-- GETTING STARTED -->
 
-## Getting Started
+<!-- ## Getting Started -->
 
 <!-- This is an example of how you may give instructions on setting up your project locally.
 To get a local copy up and running follow these simple example steps.
@@ -80,7 +86,7 @@ This is an example of how to list things you need to use the software and how to
   npm install npm@latest -g
   ``` -->
 
-### Installation
+<!-- ### Installation -->
 
 <!-- 1. Get a free API Key at [https://example.com](https://example.com)
 2. Clone the repo
@@ -102,7 +108,7 @@ This is an example of how to list things you need to use the software and how to
 
 ## Usage
 
-[Usage Gif](https://media.giphy.com/media/YLTlQxs1GUJArBUPN1/giphy.gif)
+<div style="width:100%;height:0;padding-bottom:56%;position:relative;"><iframe src="https://giphy.com/embed/YLTlQxs1GUJArBUPN1" width="100%" height="100%" style="position:absolute" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></div><p><a href="https://giphy.com/gifs/YLTlQxs1GUJArBUPN1">via GIPHY</a></p>
 
 Clangpletion works just the same as any other completion engine. Type and the completion engine will give you suggestions!
 
