@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+ 
 int call(int x);
 
 int main() {
@@ -15,7 +15,7 @@ int main() {
   struct Point pt1 = { 10, 10, 20 };
  
   struct Point pt2 = { 10, 20, 30 };
-
+  
   int ten = call(i);
 }
 
