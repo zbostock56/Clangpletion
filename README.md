@@ -108,7 +108,7 @@ This is an example of how to list things you need to use the software and how to
 
 ## Usage
 
-[UsageGif](https://github.com/zbostock56/Clangpletion/blob/main/images/giphy.mp4)
+[UsageGif](images/download.gif)
 
 Clangpletion works just the same as any other completion engine. Type and the completion engine will give you suggestions!
 
