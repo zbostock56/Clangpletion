@@ -5,86 +5,78 @@ let s:current_col = col(".")
 let s:file_name = expand('%:t:r')
 let s:extension = expand('%:e')
 let g:POPUP_ID = 0
+if s:extension == "c"
+  highlight Pmenu ctermbg=white guibg=black
 
-highlight Pmenu ctermbg=white guibg=black
+  " Autocommand Groups-------------------------
 
-" Autocommand Groups-------------------------
+  augroup popups
+   autocmd TextChangedI * :call popup_close(g:POPUP_ID)
+   autocmd TextChangedI * :call Parse_Engine_String()
+   autocmd TextChangedI * :let g:POPUP_ID=popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor+2"})
+  augroup END
 
-augroup popups
-  autocmd TextChangedI * :call popup_close(g:POPUP_ID)
-  autocmd TextChangedI * :call Parse_Engine_String()
-  autocmd TextChangedI * :let g:POPUP_ID=popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor+2"})
-augroup END
+  " Functions----------------------------------
 
-" Functions----------------------------------
+  function PrevElem()
+   let last_index = len(s:parsed_list) - 1
+   let temp = s:parsed_list[last_index]
+   let i = last_index
+   while i >= 0
+     if i == 0
+       let s:parsed_list[i] = temp
+     else
+       let next_index = i - 1
+       let s:parsed_list[i] = s:parsed_list[next_index]
+     endif
+     let i -= 1
+   endwhile
+   call popup_close(g:POPUP_ID)
+   let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor+2"})
+  endfunction
 
-function PrevElem()
-  let last_index = len(s:parsed_list) - 1
-  let temp = s:parsed_list[last_index]
-  let i = last_index
-  while i >= 0
-    if i == 0
-      let s:parsed_list[i] = temp
-    else
-      let next_index = i - 1
-      let s:parsed_list[i] = s:parsed_list[next_index]
-    endif
-    let i -= 1
-  endwhile
-  call popup_close(g:POPUP_ID)
-  let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor+2"})
-endfunction
-
-function NextElem()
-  let last_index = len(s:parsed_list) - 1
-  let temp = s:parsed_list[0]
-  let i = 0
-  while i < len(s:parsed_list)
-    if i == last_index
-      let s:parsed_list[i] = temp
-    else
-      let next_index = i + 1
-      let s:parsed_list[i] = s:parsed_list[next_index]
-    endif
-    let i += 1
-  endwhile
-  call popup_close(g:POPUP_ID)
-  let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor+2"})
-endfunction
-
-function Select()
-  "let temp_char = getline('.')[col('.')-1] 
-  execute "normal! i" . s:parsed_list[0]
-endfunction
-
-function Close_Popup()
-  if g:POPUP_ID != 0
+  function NextElem()
+   let last_index = len(s:parsed_list) - 1
+   let temp = s:parsed_list[0]
+   let i = 0
+   while i < len(s:parsed_list)
+      if i == last_index
+        let s:parsed_list[i] = temp
+      else
+        let next_index = i + 1
+        let s:parsed_list[i] = s:parsed_list[next_index]
+      endif
+      let i += 1
+    endwhile
     call popup_close(g:POPUP_ID)
-    let g:POPUP_ID = 0
-  endif
-endfunction
+    let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor+2"})
+  endfunction
 
-function Parse_Engine_String()
-  let s:current_row = line(".")
-  let s:current_col = col(".")
-  let s:engine_string = libcall("libclangpletion.dll", "complete", s:file_name . "." . s:extension . "\n" . s:current_row . "\n" . s:current_col)
-  let s:parsed_list = split(s:engine_string, "\n")
-endfunction
+  function Select()
+    "let temp_char = getline('.')[col('.')-1] 
+    execute "normal! i" . s:parsed_list[0]
+  endfunction
 
-" Keybinding Changes--------------------------
+  function Close_Popup()
+    if g:POPUP_ID != 0
+      call popup_close(g:POPUP_ID)
+      let g:POPUP_ID = 0
+    endif
+  endfunction
 
-inoremap -r <esc>:call Close_Popup()<cr>i<Right>
-inoremap <expr> <Down> g:POPUP_ID != 0 ? "<esc>:call NextElem()<cr>i<Right>" : "\<Down>"
-inoremap <expr> <Up> g:POPUP_ID != 0 ? "<esc>:call PrevElem()<cr>i<Right>" : "\<UP>"
-inoremap <expr> <TAB> g:POPUP_ID != 0 ? "<esc>bdw:call Select()<cr>i<Right>" : "\<TAB>"
-inoremap <Right> <esc>:call Close_Popup()<cr>i<Right><Right>
-inoremap <Left> <esc>:call Close_Popup()<cr>i
+  function Parse_Engine_String()
+    let s:current_row = line(".")
+    let s:current_col = col(".")
+    let s:engine_string = libcall("libclangpletion_mac.so", "complete", s:file_name . "." . s:extension . "\n" . s:current_row . "\n" . s:current_col)
+    let s:parsed_list = split(s:engine_string, "\n")
+  endfunction
 
+  " Keybinding Changes--------------------------
 
-" inoremap <expr> <esc> POPUP_ID != 0 ? "\<esc>:call popup_close(POPUP_ID)<cr>:let POPUP_ID=0<cr>li" : "\<esc>"
-" inoremap <expr> <Down> POPUP_ID != 0 ?  : "\<Down>" 
-" inoremap <Down> call NextElem() 
-" inoremap <expr> <Up> POPUP_ID != 0 ?  : "\<Up>"
-" inoremap <expr> <BS> POPUP_ID != 0 ? "\<esc>:call popup_close(POPUP_ID)<cr>:let POPUP_ID=0<cr>li" : "\<BS>"
-" inoremap <expr> <Del> POPUP_ID != 0 ? "\<esc>:call popup_close(POPUP_ID)<cr>:let POPUP_ID=0<cr>li" : "\<Del>"
-" Use liball((libname), (funcname), (arg))
+  inoremap -r <esc>:call Close_Popup()<cr>i<Right>
+  inoremap <expr> <Down> g:POPUP_ID != 0 ? "<esc>:call NextElem()<cr>i<Right>" : "\<Down>"
+  inoremap <expr> <Up> g:POPUP_ID != 0 ? "<esc>:call PrevElem()<cr>i<Right>" : "\<UP>"
+  inoremap <expr> <TAB> g:POPUP_ID != 0 ? "<esc>bdw:call Select()<cr>i<Right>" : "\<TAB>"
+  inoremap <Right> <esc>:call Close_Popup()<cr>i<Right><Right>
+  inoremap <Left> <esc>:call Close_Popup()<cr>i
+endif
