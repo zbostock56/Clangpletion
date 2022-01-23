@@ -6,7 +6,7 @@
 #define ROW parse_int(args[1])
 #define COL parse_int(args[2])
 #define WORD args[3] 
-#define COMP_MAX 200 
+#define COMP_MAX BUFSIZ  
 
 /*
 int main() {
@@ -23,7 +23,6 @@ char *complete(char *location) {
   for (int i = 0; i < 100; i++) {
     wrd[i] = '\0';
   }
-  wrd[0] = ' ';
   
 
   char *args[] = {file, row, col, wrd};
@@ -250,11 +249,7 @@ int compare_str(char *str1, char *str2) {
     }
     i++;
   }
-  if (i == 0) {
-    return 0;
-  } else {
-    return 1;
-  }
+  return 1;
 }
 
 
