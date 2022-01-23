@@ -1,31 +1,29 @@
 <div id="top"></div>
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
 
+[![Contributors][contributors-shield]](https://github.com/zbostock56/Clangpletion/graphs/contributors)
 
+[![Issues][issues-shield]](https://github.com/zbostock56/Clangpletion/issues)
+
+[![MIT License][license-shield]](https://github.com/zbostock56/Clangpletion/blob/main/LICENSE)
+
+[![LinkedIn][linkedin-shield]](https://www.linkedin.com/in/zack-bostock-932a5921b/)
 
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <a href="https://github.com/zbostock56/Clangpletion/tree/main/images/Clangpletion Logo.png">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/Clangpletion Logo.png" alt="Logo" width="200" height="200">
   </a>
-<h1 align="center">Clangpletion</h1>
+<h1 align="center"></h1>
 
   <h2 align="center">
     Using the Clang complier and Vimscript, Clangpletion gives Vim autocomplete suggestions for C programs.
     <br />
-    <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/zbostock56/Clangpletion"><strong>Explore the docs »</strong></a>
     <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
+    <a href="https://github.com/zbostock56/Clangpletion">View Demo</a>
   </p>
 </div>
-
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -51,28 +49,24 @@
   </ol>
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
 <!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 ### Built With
 
-* [Clang](https://clang.llvm.org/)
-* [Vim](https://www.vim.org/)
-* [VimScript](https://vimhelp.org/)
+- [Clang](https://clang.llvm.org/)
+- [Vim](https://www.vim.org/)
+- [VimScript](https://vimhelp.org/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- GETTING STARTED -->
+
 ## Getting Started
 
 <!-- This is an example of how you may give instructions on setting up your project locally.
@@ -91,7 +85,7 @@ This is an example of how to list things you need to use the software and how to
 <!-- 1. Get a free API Key at [https://example.com](https://example.com)
 2. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/zbostock56/Clangpletion.git
    ```
 3. Install NPM packages
    ```sh
@@ -104,9 +98,8 @@ This is an example of how to list things you need to use the software and how to
 
 <p align="right">(<a href="#top">back to top</a>)</p> -->
 
-
-
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 [Usage Gif](https://media.giphy.com/media/YLTlQxs1GUJArBUPN1/giphy.gif)
@@ -117,13 +110,11 @@ _For more examples, please refer to the [Documentation](https://vimhelp.org/)_
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
 ## Roadmap
 
 - [ ] Increased Speed
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
 
 ## License
 
@@ -131,9 +122,8 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Zack Bostock - [zbostock56@gmail.com](zbostock56@gmail.com)
@@ -142,22 +132,19 @@ Project Link: [https://github.com/zbostock56/Clangpletion](https://github.com/zb
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
-
-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/github_username/repo_name.svg?style=for-the-badge
-[contributors-url]: https://github.com/github_username/repo_name/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/github_username/repo_name.svg?style=for-the-badge
-[forks-url]: https://github.com/github_username/repo_name/network/members
-[stars-shield]: https://img.shields.io/github/stars/github_username/repo_name.svg?style=for-the-badge
-[stars-url]: https://github.com/github_username/repo_name/stargazers
-[issues-shield]: https://img.shields.io/github/issues/github_username/repo_name.svg?style=for-the-badge
-[issues-url]: https://github.com/github_username/repo_name/issues
-[license-shield]: https://img.shields.io/github/license/github_username/repo_name.svg?style=for-the-badge
-[license-url]: https://github.com/github_username/repo_name/blob/master/LICENSE.txt
+
+[contributors-shield]: https://img.shields.io/github/contributors/zbostock56/Clangpletion.svg?style=for-the-badge
+[contributors-url]: https://github.com/zbostock56/Clangpletion/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/zbostock56/Clangpletion.svg?style=for-the-badge
+[forks-url]: https://github.com/zbostock56/Clangpletion/network/members
+[stars-shield]: https://img.shields.io/github/stars/zbostock56/Clangpletion.svg?style=for-the-badge
+[stars-url]: https://github.com/zbostock56/Clangpletion/stargazers
+[issues-shield]: https://img.shields.io/github/issues/zbostock56/Clangpletion.svg?style=for-the-badge
+[issues-url]: https://github.com/zbostock56/Clangpletion/issues
+[license-shield]: https://img.shields.io/github/license/zbostock56/Clangpletion.svg?style=for-the-badge
+[license-url]: https://github.com/zbostock56/Clangpletion/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/linkedin_username
+[linkedin-url]: https://www.linkedin.com/in/zack-bostock-932a5921b/
 [product-screenshot]: images/screenshot.png
