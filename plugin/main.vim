@@ -24,23 +24,26 @@ if s:extension == "c"
   " Functions----------------------------------
 
   function PrevElem()
-   let last_index = len(s:parsed_list) - 1
-   let temp = s:parsed_list[last_index]
-   let i = last_index
-   while i >= 0
-     if i == 0
-       let s:parsed_list[i] = temp
-     else
-       let next_index = i - 1
-       let s:parsed_list[i] = s:parsed_list[next_index]
-     endif
-     let i -= 1
-   endwhile
-   call popup_close(g:POPUP_ID)
-   let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
+  if len(s:parsed_list) != 0
+    let last_index = len(s:parsed_list) - 1
+    let temp = s:parsed_list[last_index]
+    let i = last_index
+    while i >= 0
+      if i == 0
+        let s:parsed_list[i] = temp
+      else
+        let next_index = i - 1
+        let s:parsed_list[i] = s:parsed_list[next_index]
+      endif
+      let i -= 1
+    endwhile
+    call popup_close(g:POPUP_ID)
+    let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
+  endif
   endfunction
 
   function NextElem()
+  if len(s:parsed_list) != 0
    let last_index = len(s:parsed_list) - 1
    let temp = s:parsed_list[0]
    let i = 0
@@ -55,11 +58,14 @@ if s:extension == "c"
     endwhile
     call popup_close(g:POPUP_ID)
     let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
+  endif
   endfunction
 
   function Select()
+  if len(s:parsed_list) != 0
     "let temp_char = getline('.')[col('.')-1] 
-    execute "normal! i " . s:parsed_list[0]
+    execute "normal! a" . s:parsed_list[0] . "\<Esc>"
+  endif
   endfunction
 
   function Close_Popup()
@@ -69,10 +75,40 @@ if s:extension == "c"
     endif
   endfunction
 
+  function Get_Last_Token()
+    let l:index = 0
+    let l:last_occurance = -1
+    for i in getline('.')
+      if i == '.' || i == '>'
+        let l:last_occurance = l:index
+      elseif i == '='
+        let l:last_occurance = -1
+      endif
+      let l:index += 1
+    endfor
+
+    return l:last_occurance
+  endfunction
+
+  function Get_Last_Word()
+    let l:last_word = "" 
+    let l:col = Get_Last_Token()
+    while l:col <= col('.')
+      let l:last_word = l:last_word . getline(".")[l:col]
+      let l:col += 1
+    endwhile
+    return l:last_word
+  endfunction
+
   function Parse_Engine_String()
     let s:current_row = line(".")
-    let s:current_col = col(".")
-    let s:engine_string = libcall("libclangpletion.dll", "complete", s:file_name . "." . s:extension . "\n" . s:current_row . "\n" . s:current_col)
+    if (Get_Last_Token() != -1) 
+      let s:current_col = Get_Last_Token()
+    else
+      let s:current_col = col('.')
+    endif
+    let l:current_word = Get_Last_Word()
+    let s:engine_string = libcall("libclangpletion.dll", "complete", s:file_name . "." . s:extension . "\n" . s:current_row . "\n" . s:current_col . "\n" . l:current_word)
     let s:parsed_list = split(s:engine_string, "\n")
   endfunction
 
@@ -83,7 +119,7 @@ if s:extension == "c"
   inoremap <expr> <BS> g:POPUP_ID != 0 ? "<esc>:call Close_Popup()<cr>i<Right><BS>" : "\<BS>"
   inoremap <expr> <Down> g:POPUP_ID != 0 ? "<esc>:call NextElem()<cr>i<Right>" : "\<Down>"
   inoremap <expr> <Up> g:POPUP_ID != 0 ? "<esc>:call PrevElem()<cr>i<Right>" : "\<UP>"
-  inoremap <expr> <TAB> g:POPUP_ID != 0 ? "<esc>bdw:call Select()<cr>i<Right>" : "\<TAB>"
+  inoremap <expr> <TAB> g:POPUP_ID != 0 ? "<esc>:call Select()<cr>i<Right>" : "\<TAB>"
   inoremap <Right> <esc>:call Close_Popup()<cr>i<Right><Right>
   inoremap <Left> <esc>:call Close_Popup()<cr>i
 endif
