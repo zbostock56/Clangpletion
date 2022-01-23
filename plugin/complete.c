@@ -1,28 +1,21 @@
 #include <stdio.h>
  
-struct Test {
-  int test;
-}
-
-int call();
-int also(int, char *);
-
 int main() {
-  struct Test tst;
-  tst.test = 1;
-  int i = tst.
+  int i = 0;
+  int j = i + 5;
+  
+  struct Point {
+    int x;
+    int y;
+    int z;
+  }
+
+  struct Point pt1 = { 10, 10, 20 };
+ 
+  struct Point pt2 = { 10, 20, 30 };
+
+  int x = pt2.x;
 }
 
-int call() {
-  return 1;
-}
 
-int also(int hello, char *test) {
-  struct new_test {
-    int test_2;
-    char *name;
 
-  } john;
-
-  return john.
-}
