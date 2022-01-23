@@ -13,7 +13,7 @@ if s:extension == "c"
   augroup popups
    autocmd TextChangedI * :call popup_close(g:POPUP_ID)
    autocmd TextChangedI * :call Parse_Engine_String()
-   autocmd TextChangedI * :let g:POPUP_ID=popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor+2"})
+   autocmd TextChangedI * :let g:POPUP_ID=popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
   augroup END
 
   " Functions----------------------------------
@@ -32,7 +32,7 @@ if s:extension == "c"
      let i -= 1
    endwhile
    call popup_close(g:POPUP_ID)
-   let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor+2"})
+   let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
   endfunction
 
   function NextElem()
@@ -49,12 +49,12 @@ if s:extension == "c"
       let i += 1
     endwhile
     call popup_close(g:POPUP_ID)
-    let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor+2"})
+    let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
   endfunction
 
   function Select()
     "let temp_char = getline('.')[col('.')-1] 
-    execute "normal! i" . s:parsed_list[0]
+    execute "normal! i " . s:parsed_list[0]
   endfunction
 
   function Close_Popup()
@@ -73,7 +73,7 @@ if s:extension == "c"
 
   " Keybinding Changes--------------------------
 
-  inoremap -r <esc>:call Close_Popup()<cr>i<Right>
+  inoremap <expr> <BS> g:POPUP_ID != 0 ? "<esc>:call Close_Popup()<cr>i<Right><BS>" : "\<BS>"
   inoremap <expr> <Down> g:POPUP_ID != 0 ? "<esc>:call NextElem()<cr>i<Right>" : "\<Down>"
   inoremap <expr> <Up> g:POPUP_ID != 0 ? "<esc>:call PrevElem()<cr>i<Right>" : "\<UP>"
   inoremap <expr> <TAB> g:POPUP_ID != 0 ? "<esc>bdw:call Select()<cr>i<Right>" : "\<TAB>"
