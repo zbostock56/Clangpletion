@@ -11,7 +11,7 @@ int main() {
     int y;
     int z;
   }
-
+  
   struct Point pt1 = { 10, 10, 20 };
  
   struct Point pt2 = { 10, 20, 30 };

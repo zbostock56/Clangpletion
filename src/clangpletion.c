@@ -19,9 +19,13 @@ char *complete(char *location) {
   char row[20];
   char col[20];
   static char wrd[100];
+  static char recommendations[COMP_MAX];
 
-  for (int i = 0; i < 100; i++) {
-    wrd[i] = '\0';
+  for (int i = 0; i < BUFSIZ; i++) {
+    if (i < 100) {
+      wrd[i] = '\0';
+    }
+    recommendations[i] = '\0';  
   }
   
 
@@ -102,7 +106,6 @@ char *complete(char *location) {
      code-completion recomendations, with reccommendations being separated 
      by a '\n' character
   */
-  static char recommendations[COMP_MAX];
   int position = 0;
   //char *rec_pos = recommendations;
 
