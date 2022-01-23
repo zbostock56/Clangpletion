@@ -24,7 +24,7 @@ if s:extension == "c"
   " Functions----------------------------------
 
   function PrevElem()
-  if len(s:parsed_list) != 0
+  if len(s:parsed_list) > 1
     let last_index = len(s:parsed_list) - 1
     let temp = s:parsed_list[last_index]
     let i = last_index
@@ -43,7 +43,7 @@ if s:extension == "c"
   endfunction
 
   function NextElem()
-  if len(s:parsed_list) != 0
+  if len(s:parsed_list) > 1 
    let last_index = len(s:parsed_list) - 1
    let temp = s:parsed_list[0]
    let i = 0
@@ -108,6 +108,7 @@ if s:extension == "c"
       let s:current_col = col('.')
     endif
     let l:current_word = Get_Last_Word()
+    echom l:current_word
     let s:engine_string = libcall("libclangpletion.dll", "complete", s:file_name . "." . s:extension . "\n" . s:current_row . "\n" . s:current_col . "\n" . l:current_word)
     let s:parsed_list = split(s:engine_string, "\n")
   endfunction
