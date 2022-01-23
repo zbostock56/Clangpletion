@@ -11,23 +11,17 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/github_username/repo_name">
+  <a href="https://github.com/zbostock56/Clangpletion/tree/main/images/Clangpletion Logo.png">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
+<h1 align="center">Clangpletion</h1>
 
-<h3 align="center">project_title</h3>
-
-  <p align="center">
-    project_description
+  <h2 align="center">
+    Using the Clang complier and Vimscript, Clangpletion gives Vim autocomplete suggestions for C programs.
     <br />
     <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
     <br />
-    <br />
     <a href="https://github.com/github_username/repo_name">View Demo</a>
-    ·
-    <a href="https://github.com/github_username/repo_name/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/github_username/repo_name/issues">Request Feature</a>
   </p>
 </div>
 
@@ -39,7 +33,6 @@
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
-      
       <ul>
         <li><a href="#built-with">Built With</a></li>
       </ul>
@@ -53,10 +46,8 @@
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
