@@ -16,6 +16,11 @@ if s:extension == "c"
    autocmd TextChangedI * :let g:POPUP_ID=popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
   augroup END
 
+  augroup closepop
+    autocmd InsertLeave * :call popup_close(g:POPUP_ID)
+    autocmd InsertLeave * :let POPUP_ID = 0
+  augroup END  
+
   " Functions----------------------------------
 
   function PrevElem()
@@ -67,12 +72,14 @@ if s:extension == "c"
   function Parse_Engine_String()
     let s:current_row = line(".")
     let s:current_col = col(".")
-    let s:engine_string = libcall("libclangpletion_mac.so", "complete", s:file_name . "." . s:extension . "\n" . s:current_row . "\n" . s:current_col)
+    let s:engine_string = libcall("libclangpletion.dll", "complete", s:file_name . "." . s:extension . "\n" . s:current_row . "\n" . s:current_col)
     let s:parsed_list = split(s:engine_string, "\n")
   endfunction
 
   " Keybinding Changes--------------------------
 
+  
+  inoremap <expr> <Del> g:POPUP_ID != 0 ? "<esc>:call Close_Popup()<cr>i<Right><Del>" : "\<Del>"
   inoremap <expr> <BS> g:POPUP_ID != 0 ? "<esc>:call Close_Popup()<cr>i<Right><BS>" : "\<BS>"
   inoremap <expr> <Down> g:POPUP_ID != 0 ? "<esc>:call NextElem()<cr>i<Right>" : "\<Down>"
   inoremap <expr> <Up> g:POPUP_ID != 0 ? "<esc>:call PrevElem()<cr>i<Right>" : "\<UP>"
