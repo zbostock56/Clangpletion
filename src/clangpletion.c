@@ -5,7 +5,8 @@
 #define FILENAME args[0]
 #define ROW parse_int(args[1])
 #define COL parse_int(args[2])
-#define COMP_MAX 100 
+#define COMP_MAX 100
+
 /*
 int main() {
   printf("%s\n", complete("complete.c\n12\n11")); 
@@ -13,25 +14,25 @@ int main() {
 */
 char *complete(char *location) {
   // Reserve space for file, row and column argument
-  char file[BUFSIZ];
+  char file[100];
   char row[20];
   char col[20];
 
   char *args[] = {file, row, col};
 
   // Populate arguments from location string
-  char next;
+  char next_char;
   int i = 0;
   int pos = 0;
   int num_args = 0;
-  while ((next = location[i]) != '\0') {
+  while ((next_char = location[i]) != '\0') {
     // Newline characters denote end of a single argument
-    if (next == '\n') {
+    if (next_char == '\n') {
       args[num_args][pos] = '\0';
       num_args++;
       pos = 0;
     } else {
-      args[num_args][pos] = next;
+      args[num_args][pos] = next_char;
       pos++;
     }
     i++;
@@ -56,7 +57,7 @@ char *complete(char *location) {
     //printf("Unit Broke\n");
     return "NULL";
   }
-
+    
   // Code Complete at the specified location
   CXCodeCompleteResults *comp_results = clang_codeCompleteAt(
     unit,
@@ -84,6 +85,7 @@ char *complete(char *location) {
   /* From the array of results provided by comp_results, populate the
      completion string with reccommendations */
   int num_results = comp_results->NumResults;
+ 
   int result = 0;
   int adding = 1;
   while (adding){
@@ -93,7 +95,6 @@ char *complete(char *location) {
     // Each result has a completion string
     CXCompletionString comp_str = (comp_results->Results)[result]
                                     .CompletionString;
-    
     /*
       The completion string of each result is divided into a number of 
       'chunks' each representing a piece of info about the completion
@@ -106,14 +107,16 @@ char *complete(char *location) {
     */
     int num_chunks = clang_getNumCompletionChunks(comp_str);
     for (int j = 0; j < num_chunks && adding; j++) {
-      enum CXCompletionChunkKind kind = clang_getCompletionChunkKind(comp_str, j);
+      enum CXCompletionChunkKind chunk_type = clang_getCompletionChunkKind(comp_str, j);
       
       // Check Chunk Type
-      if (kind == CXCompletionChunk_TypedText || 
-          kind == CXCompletionChunk_Text) {
+      if (chunk_type == CXCompletionChunk_TypedText || 
+          chunk_type == CXCompletionChunk_Text) {
+      //if (chunk_typ == CXCompletionChunk_Informative) {
         const char *chunk_txt = clang_getCString(clang_getCompletionChunkText(comp_str, j));
         // Find length of current chunk
         int chunk_len = 0;
+        int next;
         while ((next = chunk_txt[chunk_len]) != '\0') {
           chunk_len++;
         }
@@ -130,12 +133,12 @@ char *complete(char *location) {
           recommendations[position] = ' ';
           position++;
         } else {
-          /* 
+        /*   
              if not, end adding further chunks and results to the
              recommendation string and place a null character after
              the end of the last recommendation to denote the end
              of the string
-          */   
+        */    
           recommendations[beginning] = '\0'; 
           adding = 0;
         }
@@ -152,8 +155,6 @@ char *complete(char *location) {
       }
     }  
   }
-
-  //printf("Recs:\n\n%s\n", recommendations);
 
   return recommendations;
 }
