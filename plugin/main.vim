@@ -64,7 +64,7 @@ if s:extension == "c"
   function Select()
   if len(s:parsed_list) != 0
     "let temp_char = getline('.')[col('.')-1] 
-    execute "normal! a" . s:parsed_list[0] . "\<Esc>"
+    execute "normal! bdwa" . s:parsed_list[0] . "\<Esc>"
   endif
   endfunction
 
