@@ -21,7 +21,7 @@ char *complete(char *location) {
   static char wrd[100];
   static char recommendations[COMP_MAX];
 
-  for (int i = 0; i < BUFSIZ; i++) {
+  for (int i = 0; i < COMP_MAX; i++) {
     if (i < 100) {
       wrd[i] = '\0';
     }
