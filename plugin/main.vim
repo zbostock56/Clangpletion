@@ -78,15 +78,15 @@ if s:extension == "c"
   function Get_Last_Token()
     let l:index = 0
     let l:last_occurance = -1
-    for i in getline('.')
-      if i == '.' || i == '>'
+    
+    while l:index < len(getline('.'))
+      if getline('.')[l:index] == '.' || getline('.')[l:index] == '>'
         let l:last_occurance = l:index
-      elseif i == '='
+      elseif getline('.')[l:index] == '='
         let l:last_occurance = -1
       endif
       let l:index += 1
-    endfor
-
+    endwhile
     return l:last_occurance
   endfunction
 
@@ -111,7 +111,7 @@ if s:extension == "c"
     endif
     let l:current_word = Get_Last_Word()
     echom l:current_word
-    let s:engine_string = libcall("libclangpletion.dll", "complete", s:file_name . "." . s:extension . "\n" . s:current_row . "\n" . s:current_col . "\n" . l:current_word)
+    let s:engine_string = libcall("libclangpletion_unix.so", "complete", s:file_name . "." . s:extension . "\n" . s:current_row . "\n" . s:current_col . "\n" . l:current_word)
     let s:parsed_list = split(s:engine_string, "\n")
   endfunction
 
