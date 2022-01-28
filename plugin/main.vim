@@ -80,8 +80,8 @@ if s:extension == "c"
     let l:last_occurance = -1
 
     while l:index < len(getline('.'))
-      if getline('.')[l:index] == '.' || getline('.')[l:index] == '>'
-        let l:last_occurance = l:index
+      if getline('.')[l:index] == '.' || getline('.')[l:index] == '>' || getline('.')[l:index] == '(' || getline('.')[l:index] == '=' || getline('.')[l:index] == ','
+        let l:last_occurance = l:index + 1
       elseif getline('.')[l:index] == '='
         let l:last_occurance = -1
       endif
