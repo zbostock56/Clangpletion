@@ -3,4 +3,5 @@
   char *complete(char *);
   int parse_int(char *);
   int compare_str(char *, char*);
+  //struct CXUnsavedFile read_contents(char *);
 #endif

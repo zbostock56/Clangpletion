@@ -1,3 +1,12 @@
+DEGUG INITIALIZED
+
+Filename: complete.c
+Row: 17
+Col: 2
+Word: 
+========== CONTENTS ==========
+
+
 #include <stdio.h>
 
 int call(int x);
@@ -14,7 +23,7 @@ int main() {
 
   struct Point pt1 = { 10, 10, 20 };
   struct Point pt2 = { 10, 20, 30 };
-
+  
   int ten = call(i);
 }
 
@@ -22,3 +31,6 @@ int call(int x) {
   return 10;
 }
 
+
+
+=========== CONTENTS END ==========
