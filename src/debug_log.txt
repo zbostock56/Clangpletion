@@ -1,8 +1,8 @@
 DEGUG INITIALIZED
 
 Filename: complete.c
-Row: 17
-Col: 2
+Row: 4
+Col: 0
 Word: 
 ========== CONTENTS ==========
 
@@ -23,7 +23,7 @@ int main() {
 
   struct Point pt1 = { 10, 10, 20 };
   struct Point pt2 = { 10, 20, 30 };
-  
+
   int ten = call(i);
 }
 
