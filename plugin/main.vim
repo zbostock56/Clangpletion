@@ -1,3 +1,4 @@
+let s:lib_loc = expand('<sfile>:p:h')
 let s:parsed_list = []
 let s:engine_string = "hello\nyes\nhi"
 let s:current_row = line(".")
@@ -5,6 +6,7 @@ let s:current_col = col(".")
 let s:file_name = expand('%:t:r')
 let s:extension = expand('%:e')
 let g:POPUP_ID = 0
+
 if s:extension == "c"
   highlight Pmenu ctermbg=white guibg=black
 
@@ -122,7 +124,7 @@ if s:extension == "c"
     endif
     let l:current_word = Get_Last_Word()
     let l:file_contents = Get_File_Contents()
-    let s:engine_string = libcall("libclangpletion.dll", "complete", s:file_name . "." . s:extension . "\n" . s:current_row . "\n" . s:current_col . "\n" . l:current_word . "\n" . l:file_contents)
+    let s:engine_string = libcall(s:lib_loc . "/libclangpletion.dll", "complete", s:file_name . "." . s:extension . "\n" . s:current_row . "\n" . s:current_col . "\n" . l:current_word . "\n" . l:file_contents)
     let s:parsed_list = split(s:engine_string, "\n")
   endfunction
 
