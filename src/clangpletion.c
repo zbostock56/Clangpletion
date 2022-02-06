@@ -3,30 +3,29 @@
 #include <stdlib.h>
 #include "clangpletion.h"
 
-#define FILENAME args[0]
-#define ROW parse_int(args[1])
-#define COL parse_int(args[2])
-#define WORD args[3]
-#define CONTENTS args[4]
-#define COMP_MAX BUFSIZ
-
 char *complete(char *location) {
-  FILE *debug_log = fopen("../src/debug_log.txt", "w");
-  if (debug_log == NULL) {
-    return "DEBUG FAILED";
-  }
-
-  fprintf(debug_log, "DEGUG INITIALIZED\n\n");
-
-  // Reserve space for file, row and column argument
-  char file[100] = "";
+  // Reserve memory on the heap for path of the plugin
+  char *plugin_loc = (char *) malloc(PLUGIN_LOC_INIT_MAX);
+  size_t plugin_loc_max = PLUGIN_LOC_INIT_MAX;
+  size_t plugin_loc_len = 0;
+  // Reserve memory on the heap for name of file that will be analyzed
+  char *file = (char *) malloc(FILENAME_INIT_MAX);
+  size_t file_max = FILENAME_INIT_MAX;
+  size_t file_len = 0;
+  // Reserve memory for the row the user is currently at
   char row[20] = "";
+  // Reserve memory for the column the user is currently at
   char col[20] = "";
+  // Reserve memory for the current token the user has typed
   static char wrd[100];
-  char *contents = (char *) malloc(BUFSIZ);
-  size_t contents_max = BUFSIZ;
+  // Reserve memory on the heap for the contents of the file the user is
+  // currently editing
+  char *contents = (char *) malloc(CONTENTS_INIT_MAX);
+  size_t contents_max = CONTENTS_INIT_MAX;
   size_t contents_len = 0;
 
+  // String that stores all the completion recommendations that will be fed
+  // to the user
   static char recommendations[COMP_MAX];
 
   for (int i = 0; i < COMP_MAX; i++) {
@@ -36,45 +35,93 @@ char *complete(char *location) {
     recommendations[i] = '\0';
   }
 
-  char *args[] = {file, row, col, wrd, contents};
+  char *args[] = { PLUGIN_LOC, FILENAME, row, col, WORD, CONTENTS };
 
   // Populate arguments from location string
-  char next_char;
+  char next_char = '\0';
   int i = 0;
   int pos = 0;
-  int num_args = 0;
-  while ((next_char = location[i]) != '\0') {
-    if (num_args < 4) {
-      // Newline characters denote end of a single argument
-      if (next_char == '\n') {
-        args[num_args][pos] = '\0';
-        num_args++;
-        pos = 0;
-      } else {
-        args[num_args][pos] = next_char;
-        pos++;
-      }
-    } else {
-      args[num_args][pos] = next_char;
-      contents_len++;
+  int arg = ARG_PLUGIN;
+
+  while (arg < NUM_ARGS) {
+    next_char = location[i];
+    if ((next_char == '\n' && arg < ARG_CONTENT) || next_char == '\0') {
+      args[arg][pos] = '\0';
+      arg++;
+      pos = 0;
+      i++;
+      continue;
+    }
+
+    // Process arguments that will be stored on the heap
+    if (arg == ARG_PLUGIN || arg == ARG_FILE || arg == ARG_CONTENT) {
+      args[arg][pos] = next_char;
       pos++;
 
-      if (contents_len == contents_max) {
-        contents_max *= 2;
-        contents = (char *) realloc(contents, contents_max);
-        if (contents == NULL) {
-          fclose(debug_log);
-          debug_log = NULL;
-          return "FAILED TO ALLOCATE FILE CONTENTS";
+      if (arg == ARG_PLUGIN) {
+        plugin_loc_len++;
+        if (plugin_loc_len == plugin_loc_max) {
+          plugin_loc_max *= 2;
+          PLUGIN_LOC = (char *) realloc(PLUGIN_LOC, plugin_loc_max);
+          if (PLUGIN_LOC == NULL) {
+            free((void *) FILENAME);
+            free((void *) CONTENTS);
+            return "FAILED TO ALLOCATE PLUGIN LOCATION";
+          }
         }
       }
+      else if (arg == ARG_FILE) {
+        file_len++;
+        if (file_len == file_max) {
+          file_max *= 2;
+          FILENAME = (char *) realloc(FILENAME, file_max);
+          if (file == NULL) {
+            free((void *) PLUGIN_LOC);
+            free((void *) CONTENTS);
+            return "FAILED TO ALLOCATE FILENAME";
+          }
+        }
+      }
+      else if (arg == ARG_CONTENT) {
+        contents_len++;
+        if (contents_len == contents_max) {
+          contents_max *= 2;
+          CONTENTS = (char *) realloc(CONTENTS, contents_max);
+          if (CONTENTS == NULL) {
+            free((void *) PLUGIN_LOC);
+            free((void *) FILENAME);
+            return "FAILED TO ALLOCATE FILE CONTENTS";
+          }
+        }
+      }
+    }
+    // Process arguments that will be stored on the stack
+    else {
+      args[arg][pos] = next_char;
+      pos++;
     }
     i++;
   }
 
-  fprintf(debug_log, "Filename: %s\nRow: %s\nCol: %s\nWord: %s\n"
-          "========== CONTENTS ==========\n\n%s\n\n=========== CONTENTS END ==========\n",
-          args[0], args[1], args[2], args[3], args[4]);
+  char *debug_path = (char *) malloc(plugin_loc_len + 19);
+  sprintf(debug_path, "%s/src/debug_log.txt", PLUGIN_LOC);
+
+  FILE *debug_log = fopen(debug_path, "w");
+  free((void *) debug_path);
+  if (debug_log == NULL) {
+    free((void *) PLUGIN_LOC);
+    free((void *) FILENAME);
+    free((void *) CONTENTS);
+
+    return "DEBUG FAILED";
+  }
+
+  fprintf(debug_log, "DEGUG INITIALIZED\n\n");
+
+
+  fprintf(debug_log, "Plugin Location: %s\nFilename: %s\nRow: %d\nCol: %d\nWord: %s\n"
+          "========== CONTENTS ==========\n%s\n=========== CONTENTS END ==========\n",
+          PLUGIN_LOC, FILENAME, ROW, COL, WORD, CONTENTS);
 
   // Clang set-up
   CXIndex index = clang_createIndex(0, 0);
@@ -90,7 +137,9 @@ char *complete(char *location) {
   );
 
   if (unit == 0) {
-    free((void *) contents);
+    free((void *) PLUGIN_LOC);
+    free((void *) FILENAME);
+    free((void *) CONTENTS);
     fclose(debug_log);
     debug_log = NULL;
     return "NULL";
@@ -110,7 +159,9 @@ char *complete(char *location) {
   );
 
   if (comp_results == NULL) {
-    free((void *) contents);
+    free((void *) PLUGIN_LOC);
+    free((void *) FILENAME);
+    free((void *) CONTENTS);
     fclose(debug_log);
     debug_log = NULL;
     return "Null";
@@ -198,7 +249,9 @@ char *complete(char *location) {
   }
 
   clang_disposeCodeCompleteResults(comp_results);
-  free((void *) contents);
+  free((void *) PLUGIN_LOC);
+  free((void *) FILENAME);
+  free((void *) CONTENTS);
   fclose(debug_log);
   debug_log = NULL;
   return recommendations;
