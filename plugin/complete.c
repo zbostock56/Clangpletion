@@ -7,7 +7,7 @@ int main() {
   int j = i + 5;
 
   struct Point {
-    int x;
+    int xray;
     int y;
     int z;
   }
