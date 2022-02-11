@@ -20,7 +20,7 @@
 #define PLUGIN_LOC_INIT_MAX 100
 #define FILENAME_INIT_MAX 100
 #define CONTENTS_INIT_MAX BUFSIZ
-#define COMP_MAX BUFSIZ
+#define COMP_MAX 250 
 
 
 char *complete(char *);
