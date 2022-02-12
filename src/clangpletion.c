@@ -63,11 +63,11 @@ char *complete(char *args) {
     g_unit = clang_parseTranslationUnit(
       g_index,
       FILENAME,
-      0,
+      NULL,
       0,
       &unsaved_file,
       1,
-      clang_defaultCodeCompleteOptions()
+      CXTranslationUnit_None
     );
 
     if (g_unit == NULL) {
