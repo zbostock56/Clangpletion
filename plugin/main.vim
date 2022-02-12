@@ -1,6 +1,6 @@
 let s:lib_loc = expand('<sfile>:p:h')
 let s:parsed_list = []
-let s:engine_string = "hello\nyes\nhi"
+let s:engine_string = ""
 let s:current_row = line(".")
 let s:current_col = col(".")
 let s:file_name = expand('%')
@@ -130,7 +130,11 @@ if s:extension == "c"
     endif
     let l:current_word = Get_Last_Word()
     let l:file_contents = Get_File_Contents()
-    let s:engine_string = libcall(s:lib_loc . "/libclangpletion.dll", "complete", s:plugin_loc . "\n" . s:file_name . "\n" . s:current_row . "\n" . s:current_col . "\n" . l:current_word . l:file_contents)
+    if (len(l:current_word) > 0)
+      let s:engine_string = libcall(s:lib_loc . "/libclangpletion.dll", "complete", s:plugin_loc . "\n" . s:file_name . "\n" . s:current_row . "\n" . s:current_col . "\n" . l:current_word . l:file_contents)
+    else
+      let s:engine_string = ""
+    endif
     let s:parsed_list = split(s:engine_string, "\n")
   endfunction
 

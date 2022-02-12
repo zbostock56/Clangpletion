@@ -1,10 +1,10 @@
 DEGUG INITIALIZED
 
-Plugin Location: c:/Users/jackm/Documents/C/Clangpletion
-Filename: ../plugin/complete.c
-Row: 4
-Col: 0
-Word: 
+Plugin Location: c:/Users/jackm/Documents/C/Clangpletion Buf Size: 100
+Filename: ../plugin/complete.c Buf Size: 100
+Row: 18
+Col: 4
+Word: in Buf Size: 100
 ========== CONTENTS ==========
 #include <stdio.h>
 
@@ -23,6 +23,7 @@ int main() {
   struct Point pt1 = { 10, 10, 20 };
   struct Point pt2 = { 10, 20, 30 };
 
+  in
   int ten = call(i);
 }
 
@@ -31,3 +32,4 @@ int call(int x) {
 }
 
 =========== CONTENTS END ==========
+Buf Size: 512
