@@ -174,7 +174,6 @@ char *complete(char *location) {
   }
 
   clang_disposeCodeCompleteResults(comp_results);
-  free_allocated_memory();
   return recommendations;
 }
 
