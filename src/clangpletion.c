@@ -57,14 +57,16 @@ char *complete(char *args) {
     g_index = clang_createIndex(0, 0);
   }
 
+  struct CXUnsavedFile unsaved_file = { FILENAME, CONTENTS, g_contents_len };
+
   if (g_unit == NULL) {
     g_unit = clang_parseTranslationUnit(
       g_index,
       FILENAME,
       0,
       0,
-      0,
-      0,
+      &unsaved_file,
+      1,
       clang_defaultCodeCompleteOptions()
     );
 
@@ -73,8 +75,6 @@ char *complete(char *args) {
       return "NULL";
     }
   }
-
-  struct CXUnsavedFile unsaved_file = { FILENAME, CONTENTS, g_contents_len };
 
   // Code Complete at the specified location
   CXCodeCompleteResults *comp_results = clang_codeCompleteAt(
