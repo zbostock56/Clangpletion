@@ -1,4 +1,5 @@
 let s:lib_loc = expand('<sfile>:p:h')
+let s:lib_name = ""
 let s:parsed_list = []
 let s:engine_string = ""
 let s:current_row = line(".")
@@ -9,8 +10,10 @@ let g:POPUP_ID = 0
 
 if has('win32unix') || has ('win32')
   let s:plugin_loc = expand('<sfile>:p:h:h')[1] . ":" . strpart(expand('<sfile>:p:h:h'), 2)
+  let s:lib_name = "libclangpletion.dll"
 else
   let s:plugin_loc =  expand('<sfile>:p:h:h')
+  let s:lib_name = "libclangpletion.so"
 endif
 
 if s:extension == "c"
@@ -28,6 +31,8 @@ if s:extension == "c"
     autocmd InsertLeave * :call popup_close(g:POPUP_ID)
     autocmd InsertLeave * :let POPUP_ID = 0
   augroup END
+
+  autocmd VimLeave * :call libcall(s:lib_loc . "/" . s:lib_name, "free_memory", "")
 
   " Functions----------------------------------
 

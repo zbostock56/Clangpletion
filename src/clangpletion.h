@@ -23,11 +23,19 @@
 #define CONTENTS_INIT_MAX BUFSIZ
 #define COMP_MAX 250
 
+// Libcall functions
+
 char *complete(char *);
+char *free_memory(char *);
+
+// Helper functions
+
 int populate_args(char *);
 int free_allocated_memory(void);
 int parse_int(char *);
 int compare_str(char *, char*);
+
+// Global Variables
 
 extern char *g_plugin_loc;
 extern size_t g_plugin_loc_max;

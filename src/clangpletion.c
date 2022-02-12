@@ -27,8 +27,8 @@ char recommendations[COMP_MAX];
 CXIndex g_index = NULL;
 CXTranslationUnit g_unit = NULL;
 
-char *complete(char *location) {
-  int pop_result = populate_args(location);
+char *complete(char *args) {
+  int pop_result = populate_args(args);
   if (pop_result) {
     return "FAILED TO POPULATE ARGUMENTS";
   }
@@ -175,6 +175,12 @@ char *complete(char *location) {
 
   clang_disposeCodeCompleteResults(comp_results);
   return recommendations;
+}
+
+char *free_memory(char *args) {
+  free_allocated_memory();
+
+  return "SUCCESS";
 }
 
 int populate_args(char *arg_str) {
