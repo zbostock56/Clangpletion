@@ -136,7 +136,7 @@ if s:extension == "c"
     let l:current_word = Get_Last_Word()
     let l:file_contents = Get_File_Contents()
     if (len(l:current_word) > 0)
-      let s:engine_string = libcall(s:lib_loc . "/libclangpletion.dll", "complete", s:plugin_loc . "\n" . s:file_name . "\n" . s:current_row . "\n" . s:current_col . "\n" . l:current_word . l:file_contents)
+      let s:engine_string = libcall(s:lib_loc . "/" . s:lib_name, "complete", s:plugin_loc . "\n" . s:file_name . "\n" . s:current_row . "\n" . s:current_col . "\n" . l:current_word . l:file_contents)
     else
       let s:engine_string = ""
     endif
