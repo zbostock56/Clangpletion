@@ -124,7 +124,8 @@ char *complete(char *args) {
         if (chunk_type == CXCompletionChunk_TypedText ||
             chunk_type == CXCompletionChunk_Text) {
         //if (chunk_typ == CXCompletionChunk_Informative) {
-          const char *chunk_txt = clang_getCString(clang_getCompletionChunkText(comp_str, j));
+          CXString chunk_str = clang_getCompletionChunkText(comp_str, j);
+          const char *chunk_txt = clang_getCString(chunk_str);
 
           // Check if chunk matches current token
           if(compare_str(WORD, (char *) chunk_txt)) {
@@ -158,6 +159,7 @@ char *complete(char *args) {
               adding = 0;
             }
           }
+          clang_disposeString(chunk_str);
         }
       }
       // Replace the final space of the result with a newline to denote
