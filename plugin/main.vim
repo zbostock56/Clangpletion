@@ -2,11 +2,14 @@ let s:lib_loc = expand('<sfile>:p:h')
 let s:lib_name = ""
 let s:parsed_list = []
 let s:engine_string = ""
+let s:help_string = ""
 let s:current_row = line(".")
 let s:current_col = col(".")
 let s:file_name = expand('%')
 let s:extension = expand('%:e')
+
 let g:POPUP_ID = 0
+let g:HELPER_ID = 0
 
 if has('win32unix') || has ('win32')
   let s:plugin_loc = expand('<sfile>:p:h:h')[1] . ":" . strpart(expand('<sfile>:p:h:h'), 2)
@@ -25,11 +28,14 @@ if s:extension == "c"
    autocmd TextChangedI * :call popup_close(g:POPUP_ID)
    autocmd TextChangedI * :call Parse_Engine_String()
    autocmd TextChangedI * :call Open_Popup()
+   autocmd TextChangedI * :call Open_Helper()
   augroup END
 
   augroup closepop
     autocmd InsertLeave * :call popup_close(g:POPUP_ID)
+    autocmd InsertLeave * :call popup_close(g:HELPER_ID)
     autocmd InsertLeave * :let POPUP_ID = 0
+    autocmd InsertLeave * :let HELPER_ID = 0
   augroup END
 
   autocmd VimLeave * :call libcall(s:lib_loc . "/" . s:lib_name, "free_memory", "")
@@ -85,6 +91,13 @@ if s:extension == "c"
     if g:POPUP_ID != 0
       call popup_close(g:POPUP_ID)
       let g:POPUP_ID = 0
+    endif
+  endfunction
+
+  function Close_Helper()
+    if g:HELPER_ID != 0
+      call popup_close(g:HELPER_ID)
+      let g:HELPER_ID = 0
     endif
   endfunction
 
@@ -146,6 +159,20 @@ if s:extension == "c"
   function Open_Popup()
     if len(s:parsed_list) > 0
       let g:POPUP_ID=popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
+    endif
+  endfunction
+
+  function Open_Helper()
+    let l:current_word = Get_Last_Word()
+    echom l:current_word
+    if (len(l:current_word) > 0)
+      let s:help_string = libcall(s:lib_loc . "/" . s:lib_name, "function_helper", l:current_word)
+    else
+      let s:help_string = ""
+    endif
+
+    if len(s:help_string) > 0
+      let g:HELPER_ID=popup_create(s:help_string, #{line:"cursor-1", col:"cursor"})
     endif
   endfunction
   " Keybinding Changes--------------------------
