@@ -24,6 +24,9 @@ size_t g_contents_len = 0;
 
 char recommendations[COMP_MAX];
 
+char function_help[FUNC_HELP_MAX];
+int g_help_len = 0;
+
 CXIndex g_index = NULL;
 CXTranslationUnit g_unit = NULL;
 
@@ -185,6 +188,85 @@ char *free_memory(char *args) {
   return "SUCCESS";
 }
 
+char *function_helper(char *arg) {
+  for (int i = 0; i < FUNC_HELP_MAX; i++) {
+    function_help[i] = '\0';
+  }
+  g_help_len = 0;
+
+  // Clang set-up
+  if (g_index == NULL) {
+    g_index = clang_createIndex(0, 0);
+  }
+
+  if (g_unit == NULL) {
+    g_unit = clang_parseTranslationUnit(
+      g_index,
+      FILENAME,
+      NULL,
+      0,
+      NULL,
+      1,
+      CXTranslationUnit_None
+    );
+
+    if (g_unit == NULL) {
+      free_allocated_memory();
+      return "NULL";
+    }
+  }
+
+  CXCursor cursor = clang_getTranslationUnitCursor(g_unit);
+  clang_visitChildren(
+      cursor,
+      visitor,
+      arg
+  );
+
+  if (function_help[g_help_len - 2] == ',') {
+    function_help[g_help_len - 2] = ')';
+    function_help[g_help_len - 1] = '\0';
+  } else if (function_help[g_help_len - 1] == '(') {
+    function_help[g_help_len] = ')';
+    g_help_len++;
+    function_help[g_help_len] = '\0';
+  }
+  return function_help;
+}
+
+enum CXChildVisitResult visitor(CXCursor c, CXCursor parent,
+                                CXClientData client_data) {
+  if (((c.kind == CXCursor_FunctionDecl) && (clang_isCursorDefinition(c))) ||
+      ((c.kind == CXCursor_FunctionDecl) && (((char *) client_data)[0] == '\0'))) {
+    CXString func_name = clang_getCursorSpelling(c);
+    if (compare_strl((char *) client_data, (char *) clang_getCString(func_name))) {
+      gen_help_header((char *) client_data);
+
+      for (int i = 0; i < clang_Cursor_getNumArguments(c); i++) {
+        CXCursor arg = clang_Cursor_getArgument(c, i);
+        CXString type = clang_getTypeSpelling(clang_getCursorType(arg));
+        CXString name = clang_getCursorSpelling(arg);
+        int res = gen_help_arg((char *) clang_getCString(type),
+                               (char *) clang_getCString(name));
+        clang_disposeString(type);
+        clang_disposeString(name);
+
+        if (res) {
+          break;
+        }
+      }
+
+      clang_disposeString(func_name);
+
+      if (clang_isCursorDefinition(c)) {
+        return CXChildVisit_Break;
+      }
+    }
+  }
+
+  return CXChildVisit_Continue;
+}
+
 int populate_args(char *arg_str) {
   // Reset the recommendations string
 
@@ -325,6 +407,80 @@ int populate_args(char *arg_str) {
   return 0;
 }
 
+int gen_help_header(char *arg) {
+  char next;
+  int i = 0;
+  while (((next = arg[i]) != '\0') && (i < (FUNC_HELP_MAX / 2))) {
+    function_help[i] = next;
+    i++;
+  }
+
+  if ((i == (FUNC_HELP_MAX / 2)) && (next != '\0')) {
+    function_help[0] = '.';
+    function_help[1] = '.';
+    function_help[2] = '.';
+    function_help[3] = '(';
+    function_help[4] = ' ';
+    g_help_len = 5;
+
+    return 0;
+  } else {
+    function_help[i] = '(';
+    i++;
+    g_help_len = i;
+
+    return 0;
+  }
+}
+
+int gen_help_arg(char *type, char *name) {
+  char next;
+  int i = 0;
+  while (((next = type[i]) != '\0') && ((i + g_help_len) < FUNC_HELP_MAX - 5)) {
+    function_help[g_help_len + i] = next;
+    i++;
+  }
+
+  if (((i + g_help_len) == (FUNC_HELP_MAX - 5)) && (next != '\0')) {
+    function_help[g_help_len] = '.';
+    function_help[g_help_len + 1] = '.';
+    function_help[g_help_len + 2] = '.';
+    function_help[g_help_len + 3] = ')';
+    function_help[g_help_len + 4] = '\0';
+    g_help_len = FUNC_HELP_MAX - 1;
+
+    return 1;
+  } else {
+    function_help[g_help_len + i] = ' ';
+    i++;
+    g_help_len += i;
+  }
+
+  int k = 0;
+  while (((next = name[k]) != '\0') && ((k + g_help_len) < FUNC_HELP_MAX - 5)) {
+    function_help[g_help_len + k] = next;
+    k++;
+  }
+
+  if (((g_help_len + k) == (FUNC_HELP_MAX - 5)) && (next != '\0')) {
+    function_help[g_help_len - i] = '.';
+    function_help[g_help_len - i + 1] = '.';
+    function_help[g_help_len - i + 2] = '.';
+    function_help[g_help_len - i + 3] = ')';
+    function_help[g_help_len - i + 4] = '\0';
+    g_help_len = FUNC_HELP_MAX - 1;
+
+    return 1;
+  } else {
+    function_help[g_help_len + k] = ',';
+    function_help[g_help_len + k + 1] = ' ';
+    k += 2;
+    g_help_len += k;
+
+    return 0;
+  }
+}
+
 int free_allocated_memory(void) {
   if (g_plugin_loc != NULL) {
     free(g_plugin_loc);
@@ -385,3 +541,18 @@ int compare_str(char *str1, char *str2) {
   return 1;
 }
 
+int compare_strl(char *str1, char *str2) {
+  char next;
+  int i = 0;
+  while ((next = str1[i]) != '\0') {
+    if (str1[i] != str2[i]) {
+      return 0;
+    }
+    i++;
+  }
+  if (str1[i] != str2[i]) {
+    return 0;
+  }
+
+  return 1;
+}
