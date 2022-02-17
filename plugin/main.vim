@@ -28,14 +28,14 @@ if s:extension == "c"
    autocmd TextChangedI * :call popup_close(g:POPUP_ID)
    autocmd TextChangedI * :call Parse_Engine_String()
    autocmd TextChangedI * :call Open_Popup()
-   autocmd TextChangedI * :call Open_Helper()
+ "  autocmd TextChangedI * :call Open_Helper()
   augroup END
 
   augroup closepop
     autocmd InsertLeave * :call popup_close(g:POPUP_ID)
-    autocmd InsertLeave * :call popup_close(g:HELPER_ID)
+  "  autocmd InsertLeave * :call popup_close(g:HELPER_ID)
     autocmd InsertLeave * :let POPUP_ID = 0
-    autocmd InsertLeave * :let HELPER_ID = 0
+  "  autocmd InsertLeave * :let HELPER_ID = 0
   augroup END
 
   autocmd VimLeave * :call libcall(s:lib_loc . "/" . s:lib_name, "free_memory", "")
