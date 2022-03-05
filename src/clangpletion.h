@@ -34,7 +34,8 @@ char *function_helper(char *);
 // Helper functions
 
 enum CXChildVisitResult visitor(CXCursor, CXCursor, CXClientData);
-int populate_args(char *);
+int populate_completion_args(char *);
+int populate_function_helper_args(char *);
 int gen_help_header(char *);
 int gen_help_arg(char *, char *);
 int free_allocated_memory(void);

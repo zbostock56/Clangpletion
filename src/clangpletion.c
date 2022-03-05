@@ -31,7 +31,7 @@ CXIndex g_index = NULL;
 CXTranslationUnit g_unit = NULL;
 
 char *complete(char *args) {
-  int pop_result = populate_args(args);
+  int pop_result = populate_completion_args(args);
   if (pop_result) {
     return "FAILED TO POPULATE ARGUMENTS";
   }
@@ -42,17 +42,15 @@ char *complete(char *args) {
   FILE *debug_log = fopen(debug_path, "w");
   free((void *) debug_path);
   if (debug_log == NULL) {
-    free_allocated_memory();
-
     return "DEBUG FAILED";
   }
-
+/*
   fprintf(debug_log, "DEGUG INITIALIZED\n\n");
 
   fprintf(debug_log, "Plugin Location: %s Buf Size: %lld\nFilename: %s Buf Size: %lld\nRow: %d\nCol: %d\nWord: %s Buf Size: %lld\n"
           "========== CONTENTS ==========\n%s\n=========== CONTENTS END ==========\nBuf Size: %lld\n",
           PLUGIN_LOC, g_plugin_loc_max, FILENAME, g_filename_max, ROW, COL, WORD, g_token_max, CONTENTS, g_contents_max);
-
+*/
   fclose(debug_log);
 
   // Clang set-up
@@ -74,7 +72,6 @@ char *complete(char *args) {
     );
 
     if (g_unit == NULL) {
-      free_allocated_memory();
       return "NULL";
     }
   }
@@ -91,7 +88,6 @@ char *complete(char *args) {
   );
 
   if (comp_results == NULL) {
-    free_allocated_memory();
     return "Null";
   }
 
@@ -188,16 +184,31 @@ char *free_memory(char *args) {
   return "SUCCESS";
 }
 
-char *function_helper(char *arg) {
-  for (int i = 0; i < FUNC_HELP_MAX; i++) {
-    function_help[i] = '\0';
+//FILE *helper_debug_log;
+
+char *function_helper(char *args) {
+  int pop_result = populate_function_helper_args(args);
+  if (pop_result) {
+    return "FAILED TO POPULATE ARGUMENTS";
   }
-  g_help_len = 0;
+
+  /*helper_debug_log = fopen("helper_debug_log.txt", "w");
+
+  fprintf(helper_debug_log, "DEGUG INITIALIZED\n\n");
+
+  fprintf(helper_debug_log, "Filename: %s Buf Size: %ld\nWord: %s Buf Size: %ld\n"
+          "========== CONTENTS =========\n%s\n========= CONTENTS END ========\n"
+          "Buf Size: %ld\n",
+          FILENAME, g_filename_max, WORD, g_token_max, "", g_contents_max);
+  */
+  //fclose(debug_log);
 
   // Clang set-up
   if (g_index == NULL) {
     g_index = clang_createIndex(0, 0);
   }
+
+  struct CXUnsavedFile unsaved_file = { FILENAME, CONTENTS, g_contents_len };
 
   if (g_unit == NULL) {
     g_unit = clang_parseTranslationUnit(
@@ -205,23 +216,25 @@ char *function_helper(char *arg) {
       FILENAME,
       NULL,
       0,
-      NULL,
+      &unsaved_file,
       1,
       CXTranslationUnit_None
     );
 
     if (g_unit == NULL) {
-      free_allocated_memory();
       return "NULL";
     }
   }
 
   CXCursor cursor = clang_getTranslationUnitCursor(g_unit);
+
   clang_visitChildren(
       cursor,
       visitor,
-      arg
+      WORD
   );
+
+  //fclose(helper_debug_log);
 
   if (function_help[g_help_len - 2] == ',') {
     function_help[g_help_len - 2] = ')';
@@ -237,7 +250,7 @@ char *function_helper(char *arg) {
 enum CXChildVisitResult visitor(CXCursor c, CXCursor parent,
                                 CXClientData client_data) {
   if (((c.kind == CXCursor_FunctionDecl) && (clang_isCursorDefinition(c))) ||
-      ((c.kind == CXCursor_FunctionDecl) && (((char *) client_data)[0] == '\0'))) {
+      ((c.kind == CXCursor_FunctionDecl) && (function_help[0] == '\0'))) {
     CXString func_name = clang_getCursorSpelling(c);
     if (compare_strl((char *) client_data, (char *) clang_getCString(func_name))) {
       gen_help_header((char *) client_data);
@@ -267,7 +280,7 @@ enum CXChildVisitResult visitor(CXCursor c, CXCursor parent,
   return CXChildVisit_Continue;
 }
 
-int populate_args(char *arg_str) {
+int populate_completion_args(char *arg_str) {
   // Reset the recommendations string
 
   for (int j = 0; j < COMP_MAX; j++) {
@@ -308,7 +321,7 @@ int populate_args(char *arg_str) {
     g_filename = malloc(FILENAME_INIT_MAX);
     if (g_filename == NULL) {
       free_allocated_memory();
-      return -1;
+    return -1;
     }
   }
   while (arg_str[i] != '\n') {
@@ -407,6 +420,97 @@ int populate_args(char *arg_str) {
   return 0;
 }
 
+int populate_function_helper_args(char *arg_str) {
+  // Reset the function helper string
+
+  for (int j = 0; j < FUNC_HELP_MAX; j++) {
+    function_help[j] = '\0';
+  }
+
+  int i = 0;
+
+  // Populate g_filename
+  g_filename_len = 0;
+  if (g_filename == NULL) {
+    g_filename = malloc(FILENAME_INIT_MAX);
+    if (g_filename == NULL) {
+      free_allocated_memory();
+      return -1;
+    }
+  }
+  while (arg_str[i] != '\n') {
+    g_filename[g_filename_len] = arg_str[i];
+    g_filename_len++;
+    i++;
+    if (g_filename_len >= g_filename_max) {
+      g_filename_max *= 2;
+      g_filename = realloc(g_filename, g_filename_max);
+
+      if (g_filename == NULL) {
+        free_allocated_memory();
+        return -1;
+      }
+    }
+  }
+  g_filename[g_filename_len] = '\0';
+  i++;
+
+  // Populate g_token
+  g_token_len = 0;
+  if (g_token == NULL) {
+    g_token = malloc(TOKEN_INIT_MAX);
+    if (g_token == NULL) {
+      free_allocated_memory();
+      return -1;
+    }
+  }
+  while (arg_str[i] != '\n') {
+    g_token[g_token_len] = arg_str[i];
+    g_token_len++;
+    i++;
+    if (g_token_len >= g_token_max) {
+      g_token_max *= 2;
+      g_token = realloc(g_token, g_token_max);
+
+      if (g_token == NULL) {
+        free_allocated_memory();
+        return -1;
+      }
+    }
+  }
+  g_token[g_token_len] = '\0';
+  i++;
+
+  // Populate g_contents
+  g_contents_len = 0;
+  if (g_contents == NULL) {
+    g_contents = malloc(CONTENTS_INIT_MAX);
+    if (g_contents == NULL) {
+      free_allocated_memory();
+      return -1;
+    }
+  }
+  while (arg_str[i] != '\0') {
+    g_contents[g_contents_len] = arg_str[i];
+    g_contents_len++;
+    i++;
+    if (g_contents_len >= g_contents_max) {
+      g_contents_max *= 2;
+      g_contents = realloc(g_contents, g_contents_max);
+
+      if (g_contents == NULL) {
+        free_allocated_memory();
+        return -1;
+      }
+    }
+  }
+  g_contents[g_contents_len] = '\0';
+  i++;
+
+  return 0;
+
+}
+
 int gen_help_header(char *arg) {
   char next;
   int i = 0;
@@ -420,8 +524,7 @@ int gen_help_header(char *arg) {
     function_help[1] = '.';
     function_help[2] = '.';
     function_help[3] = '(';
-    function_help[4] = ' ';
-    g_help_len = 5;
+    g_help_len = 4;
 
     return 0;
   } else {
