@@ -445,8 +445,22 @@ if s:extension == "c"
   "
   " =========================
   function Open_Helper()
+    let l:num_cols = winwidth(0)
+    let l:cur_col = col('.')
+    let l:x_offset = 0
+    let l:y_offset = 1
+
+    " Determines the appropriate column and line offset for the location of
+    " the function helper based on the window and cursor position
+    if (l:cur_col + len(s:help_string) > (l:num_cols - 4)) && (l:cur_col - len(s:help_string) > 0)
+      let l:x_offset = len(s:help_string)
+    elseif l:cur_col + len(s:help_string) > (l:num_cols - 4)
+      let l:x_offset = len(s:help_string)
+      let l:y_offset = (len(s:help_string) / l:num_cols) + 1
+    endif
+
     if len(s:help_string) > 0
-      let g:HELPER_ID=popup_create(s:help_string, #{line:"cursor-1", col:"cursor"})
+      let g:HELPER_ID=popup_create(s:help_string, #{line:"cursor-" . l:y_offset, col:"cursor-" . l:x_offset})
     endif
   endfunction
 
