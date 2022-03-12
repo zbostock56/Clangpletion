@@ -428,10 +428,13 @@ if s:extension == "c"
     " Retrieve the name of the current function (if any)
     let l:current_function = Get_Current_Function()
 
+    let s:current_row = line(".")
+    let s:current_col = col('.') - 1
+
     if len(l:current_function) > 0
       " If the current function exists, make a call to the external C library to
       " generate a function helper for the function
-      let s:help_string = libcall(s:lib_loc . "/" . s:lib_name, "function_helper", s:file_name . "\n" . l:current_function . s:file_contents)
+      let s:help_string = libcall(s:lib_loc . "/" . s:lib_name, "function_helper", s:file_name . "\n" . s:current_row . "\n" . s:current_col . "\n". l:current_function . s:file_contents)
     else
       " If the current function does not exist, simply update the help string
       " to be blank
