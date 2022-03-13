@@ -10,9 +10,11 @@ let s:file_contents = ""
 let s:extension = expand('%:e')
 
 let g:POPUP_ID = 0
+let g:selected_option = -1
+
 let g:HELPER_ID = 0
 
-let s:operators = [ '(', '[', '>', '!', '~', '+', '-', '*', '&', '/', '%', '<', '=', '^', '|', '&', '?', ':', '.', ',' ]
+let s:operators = [ '(', '[', '>', '!', '~', '+', '-', '*', '&', '/', '%', '<', '=', '^', '|', '&', '?', ':', '.', ',', ' ' ]
 
 if has('win32unix') || has ('win32')
   let s:plugin_loc = expand('<sfile>:p:h:h')[1] . ":" . strpart(expand('<sfile>:p:h:h'), 2)
@@ -115,17 +117,32 @@ if s:extension == "c"
     endif
   endfunction
 
-  " ===== Select() =====
+  " ===== Select_Option() =====
   "
   " Selects an option from the code completion list and places it into the
   " current buffer
   "
   " ====================
-  function Select()
-    if len(s:parsed_list) != 0
-      " Execute macro that deletes the previous word then places the first
-      " option of the code completion list into the buffer
-      execute "normal! bdwa" . s:parsed_list[0] . "\<Esc>"
+  function Select_Option(id, index)
+    " Ensure the current option is valid and the length of completion list is
+    " not 0
+    if (a:index > 0) && (len(s:parsed_list) != 0)
+      " Record the end of the current word that needs to be replaced
+      let l:end = col('.')
+      " Move the cursor to the beginning of the word to be replaced
+      execute "normal! a \<Esc>b"
+      " Record the beginning of the current word that needs to be replaced
+      let l:beginning = col('.')
+
+      " Iterate through the word, deleting the letters to be replaced
+      let l:i = 0
+      while l:i < (l:end - l:beginning)
+        execute "normal! \<Del>"
+        let l:i += 1
+      endwhile
+
+      " Insert the completion string
+      execute "normal! i" . s:parsed_list[a:index - 1] . "\<Del>\<Del>"
     endif
   endfunction
 
@@ -262,7 +279,44 @@ if s:extension == "c"
   " =========================
   function Open_Popup()
     if len(s:parsed_list) > 0
-      let g:POPUP_ID=popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
+      let g:selected_option = 1
+      let g:POPUP_ID = popup_menu(s:parsed_list, #{
+            \ pos: "topleft",
+            \ line: "cursor+1",
+            \ col: "cursor",
+            \ border: [ 0, 0, 0, 0 ],
+            \ mapping: 1,
+            \ filter: 'Code_Comp_Filter',
+            \ callback: 'Select_Option'
+            \ })
+
+      "let g:POPUP_ID=popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
+    endif
+  endfunction
+
+  " ===== Code_Comp_Filter() =====
+  "
+  " Provides additional input filtering for the code completion popup menu
+  "
+  " ==============================
+  function Code_Comp_Filter(id, key)
+    if (a:key == "\<Left>") || (a:key == "\<Right>")
+      call Close_Popup()
+      return 1
+    elseif (a:key == "\<Down>")
+      if g:selected_option < len(s:parsed_list)
+        let g:selected_option += 1
+      endif
+
+      return popup_filter_menu(a:id, a:key)
+    elseif (a:key == "\<Up>")
+      if g:selected_option > 1
+        let g:selected_option -= 1
+      endif
+
+      return popup_filter_menu(a:id, a:key)
+    else
+      return 0
     endif
   endfunction
 
@@ -311,6 +365,7 @@ if s:extension == "c"
         " unpaired closing parenthesis, decrement the number of un-paired
         " closed parenthesis by 1, as the current character is the complement
         " to a found closed parenthesis
+
         let l:closing_paren_found += -1
 
       elseif l:opening_paren_found == 1
@@ -325,6 +380,7 @@ if s:extension == "c"
           if l:cur_line[l:index] == i
             let l:func_beginning = l:index + 1
             break
+
           endif
         endfor
 
@@ -503,12 +559,7 @@ if s:extension == "c"
 
   " Keybinding Changes--------------------------
 
-
-  inoremap <expr> <Del> g:POPUP_ID != 0 ? "<esc>:call Close_Popup()<cr>i<Right><Del>" : "\<Del>"
-  inoremap <expr> <BS> g:POPUP_ID != 0 ? "<esc>:call Close_Popup()<cr>i<Right><BS>" : "\<BS>"
-  inoremap <expr> <Down> g:POPUP_ID != 0 ? "<esc>:call NextElem()<cr>i<Right>" : "<esc>:call Close_Helper()<cr>i<Right><Down>"
-  inoremap <expr> <Up> g:POPUP_ID != 0 ? "<esc>:call PrevElem()<cr>i<Right>" : "<esc>:call Close_Helper()<cr>i<Right><UP>"
-  inoremap <expr> <TAB> g:POPUP_ID != 0 ? "<esc>:call Select()<cr>i<Right>" : "\<TAB>"
-  inoremap <Right> <esc>:call Close_Popup()<cr>i<Right><Right>
-  inoremap <Left> <esc>:call Close_Popup()<cr>i
+  inoremap <expr> <Tab> g:POPUP_ID != 0 ? "<esc>:call Select_Option(g:POPUP_ID, g:selected_option)<cr>i<Right>" : "\<Tab>"
+  inoremap <expr> <Down> g:POPUP_ID != 0 ? "\<Down>" : "<esc>:call Close_Helper()<cr>i<Right><Down>"
+  inoremap <expr> <Up> g:POPUP_ID != 0 ? "\<Up>" : "<esc>:call Close_Helper()<cr>i<Right><Up>"
 endif
