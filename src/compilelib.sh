@@ -1,6 +1,4 @@
-gcc -Wall -g -fPIC -c -O3 -o clangpletion.o clangpletion.c -IC:/'Program Files'/LLVM/include -LC:/'Program Files'/LLVM/lib -lclang 
-
-gcc -shared -o libclangpletion.dll clangpletion.o libclang.lib
-
-#clang -Wall -IC:/'Program Files'/LLVM/include -LC:/'Program Files'/LLVM/lib -libclang -c -o clangpletion.o clangpletion.c
-
+gcc -Wall -fPIC -c code_complete.c func_helper.c globals.c -I../include -LC:/'Program Files'/LLVM/lib -lclang
+gcc -shared -O3 -o libclangpletion.dll code_complete.o func_helper.o globals.o libclang.lib
+rm code_complete.o func_helper.o globals.o
+cp ./libclangpletion.dll ../plugin
