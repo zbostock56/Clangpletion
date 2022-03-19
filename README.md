@@ -55,9 +55,10 @@ _For more examples, please refer to the [Documentation](https://vimhelp.org/)_
 
 ## Roadmap
 
-- [ ] Increased Speed
-  - [ ] Optimize Algorithms
+- [X] Increased Speed
+  - [X] Optimize Algorithms
 - [ ] Greater support for Mac OS
+- [X] Suggestions for Functions
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
