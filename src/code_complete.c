@@ -66,7 +66,7 @@ char *complete(char *args) {
     return "Null";
   }
 
-  for (int i = 0; i < comp_results->NumResults; i++) {
+  /*for (int i = 0; i < comp_results->NumResults; i++) {
     CXCompletionResult result = (comp_results->Results)[i];
     CXCompletionString comp_str = result.CompletionString;
 
@@ -79,7 +79,7 @@ char *complete(char *args) {
       clang_disposeString(chunk_txt);
     }
     fprintf(debug_log, "=================================\n\n");
-  }
+  }*/
   fclose(debug_log);
 
   int position = 0;

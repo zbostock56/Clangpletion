@@ -10,7 +10,7 @@ let s:file_contents = ""
 let s:extension = expand('%:e')
 
 let g:POPUP_ID = 0
-let g:selected_option = -1
+let g:selected_option = 0
 
 let g:HELPER_ID = 0
 
@@ -25,6 +25,10 @@ else
 endif
 
 if s:extension == "c"
+  " Custom Highlighting------------------------
+
+  highlight CurrentParam ctermbg=white ctermfg=black
+  highlight CurrentSelection ctermbg=white ctermfg=black
 
   " Autocommand Groups-------------------------
 
@@ -45,76 +49,25 @@ if s:extension == "c"
 
   " Functions----------------------------------
 
-  " ===== PrevElem() =====
+  " ===== Change_Selection() =====
   "
-  " Updates the code completion popup options to switch the currently
-  " selected option to the previous option in the list
+  " Update the currently selected code completion option
   "
-  " ======================
-  function PrevElem()
-  if len(s:parsed_list) > 1
-    let last_index = len(s:parsed_list) - 1
+  " ==============================
+  function Change_Selection()
+    " Refresh the text properties of the code completion menu to now highlight
+    " the currently selected option
+    call prop_type_delete('current_selection')
+    call prop_type_add('current_selection', {
+          \ 'bufnr': winbufnr(g:POPUP_ID),
+          \ 'highlight': 'CurrentSelection'
+          \ })
 
-    " Temporarily store the last element of the code completion list
-    let temp = s:parsed_list[last_index]
-
-    " Iterate through the code completion list, moving each element down one
-    " position in the list, and bringing the last element in the list to the
-    " top
-    let i = last_index
-    while i >= 0
-      if i == 0
-        " Move the last element to the top of the list
-        let s:parsed_list[i] = temp
-      else
-        " Move all other elements down the list by 1 position
-        let next_index = i - 1
-        let s:parsed_list[i] = s:parsed_list[next_index]
-      endif
-      let i -= 1
-    endwhile
-
-    " Close and reopen the code completion popup to reflect the updated
-    " positions
-    call popup_close(g:POPUP_ID)
-    let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
-  endif
-  endfunction
-
-  " ===== NextElem() =====
-  "
-  " Updates the code completion popup options to switch the currently selected
-  " option to the next option in the list
-  "
-  " ======================
-  function NextElem()
-    if len(s:parsed_list) > 1
-      let last_index = len(s:parsed_list) - 1
-
-      " Temporarily store the first element of the code completion list
-      let temp = s:parsed_list[0]
-
-      " Iterate through the code completion list, moving each element up one
-      " position in the list, and bringing the first element in the list to
-      " the bottom
-      let i = 0
-      while i < len(s:parsed_list)
-        if i == last_index
-          " Move the first element in the list to the bottom of the list
-          let s:parsed_list[i] = temp
-        else
-          " Move every other element up the list by 1 position
-          let next_index = i + 1
-          let s:parsed_list[i] = s:parsed_list[next_index]
-        endif
-        let i += 1
-      endwhile
-
-      " Close and reopen the code completion popup to reflect the updated
-      " positions
-      call popup_close(g:POPUP_ID)
-      let g:POPUP_ID = popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
-    endif
+    call prop_add(g:selected_option + 1, 1, {
+          \ 'bufnr': winbufnr(g:POPUP_ID),
+          \ 'end_col': len(s:parsed_list[g:selected_option]) + 1,
+          \ 'type': 'current_selection'
+          \ })
   endfunction
 
   " ===== Select_Option() =====
@@ -126,7 +79,7 @@ if s:extension == "c"
   function Select_Option(id, index)
     " Ensure the current option is valid and the length of completion list is
     " not 0
-    if (a:index > 0) && (len(s:parsed_list) != 0)
+    if (a:index > -1) && (len(s:parsed_list) != 0)
       " Record the end of the current word that needs to be replaced
       let l:end = col('.')
       " Move the cursor to the beginning of the word to be replaced
@@ -142,7 +95,7 @@ if s:extension == "c"
       endwhile
 
       " Insert the completion string
-      execute "normal! i" . s:parsed_list[a:index - 1] . "\<Del>\<Del>"
+      execute "normal! i" . s:parsed_list[a:index] . "\<Del>\<Del>"
     endif
   endfunction
 
@@ -279,18 +232,53 @@ if s:extension == "c"
   " =========================
   function Open_Popup()
     if len(s:parsed_list) > 0
-      let g:selected_option = 1
-      let g:POPUP_ID = popup_menu(s:parsed_list, #{
-            \ pos: "topleft",
-            \ line: "cursor+1",
+      let g:selected_option = 0
+
+      let g:POPUP_ID=popup_create(s:parsed_list, #{
+            \ line:"cursor+1",
             \ col: "cursor",
-            \ border: [ 0, 0, 0, 0 ],
-            \ mapping: 1,
             \ filter: 'Code_Comp_Filter',
-            \ callback: 'Select_Option'
+            \ callbacl: 'Select_Option'
             \ })
 
-      "let g:POPUP_ID=popup_create(s:parsed_list, #{line:"cursor+1", col: "cursor"})
+      call prop_type_delete('current_selection', {'bufnr': winbufnr(g:POPUP_ID)})
+      call prop_type_add('current_selection', {
+            \ 'bufnr': winbufnr(g:POPUP_ID),
+            \ 'highlight': 'CurrentSelection'
+            \ })
+      call prop_add(g:selected_option + 1, 1, {
+            \ 'bufnr': winbufnr(g:POPUP_ID),
+            \ 'end_col': len(s:parsed_list[g:selected_option]) + 1,
+            \ 'type': 'current_selection'
+            \ })
+
+    endif
+  endfunction
+
+  " ===== Refresh_Popup() =====
+  "
+  " Closes and reopens the popup menu without reseting the currently selected
+  " option, which in turn updates the text properties of the popup
+  "
+  " ===========================
+  function Refresh_Popup()
+    if len(s:parsed_list) > 0
+      let g:POPUP_ID = popup_create(s:parsed_list, #{
+            \ line: "cursor+1",
+            \ col: "cursor",
+            \ filter: "Code_Comp_Filter"
+            \ })
+
+      call prop_type_delete('current_selection', {'bufnr': winbufnr(g:POPUP_ID)})
+      call prop_type_add('current_selection', {
+            \ 'bufnr': winbufnr(g:POPUP_ID),
+            \ 'highlight': 'CurrentSelection'
+            \ })
+      call prop_add(g:selected_option + 1, 1, {
+            \ 'bufnr': winbufnr(g:POPUP_ID),
+            \ 'end_col': len(s:parsed_list[g:selected_option]) + 1,
+            \ 'type': 'current_selection'
+            \ })
     endif
   endfunction
 
@@ -302,19 +290,29 @@ if s:extension == "c"
   function Code_Comp_Filter(id, key)
     if (a:key == "\<Left>") || (a:key == "\<Right>")
       call Close_Popup()
-      return 1
+      return 0
     elseif (a:key == "\<Down>")
-      if g:selected_option < len(s:parsed_list)
+      if g:selected_option < len(s:parsed_list) - 1
         let g:selected_option += 1
       endif
 
-      return popup_filter_menu(a:id, a:key)
+      call popup_close(g:POPUP_ID, -1)
+      call Refresh_Popup()
+
+      return 1
     elseif (a:key == "\<Up>")
-      if g:selected_option > 1
+      if g:selected_option > 0
         let g:selected_option -= 1
       endif
 
-      return popup_filter_menu(a:id, a:key)
+      call popup_close(g:POPUP_ID, -1)
+      call Refresh_Popup()
+
+      return 1
+    elseif (a:key == "\<Tab>")
+      call popup_close(g:POPUP_ID, g:selected_option)
+
+      return 1
     else
       return 0
     endif
@@ -372,7 +370,6 @@ if s:extension == "c"
         " If the opening parenthesis that indicates the end of the argument
         " list has been found, begin looking for the most recent C operator,
         " which denotes the beginning of the function call
-        echom l:cur_line[l:index]
         for i in s:operators
           " If the current character is a C operator, update the func
           " beginning variable to the position immediately after the C
@@ -450,6 +447,123 @@ if s:extension == "c"
     endif
   endfunction
 
+  " ===== Count_Commas() =====
+  "
+  " Counts the number of commas from the start of the function call to the
+  " current cursor position, which corresponds to which parameter is being
+  " typed by the cursor
+  "
+  " ==========================
+  function Count_Commas()
+    " Retrieves the beginning of the function call, where comma counting
+    " should begin
+    let l:func_beginning = Get_Func_Beginning()
+    " Records the number of commas found
+    let l:num_commas = 0
+
+    " Iterate through the function call, until the cursor position is reached,
+    " counting the number of commas found
+    let l:index = 0
+    while l:index < col('.') - 1
+      if getline('.')[l:index] == ','
+        let num_commas += 1
+      endif
+      let l:index += 1
+    endwhile
+
+    return l:num_commas
+  endfunction
+
+  " ===== Detect_Current_Param() =====
+  "
+  " Detects the current parameter being typed by the cursor and highlights the
+  " respective parameter name in the function helper popup
+  "
+  " ==================================
+  function Detect_Current_Param()
+    " Ensure the function helper isn't blank and the function helper is open
+    if (len(s:help_string) > 0) && (g:HELPER_ID != 0)
+      " Retrieve the current parameter number being typed
+      let l:param_number = Count_Commas()
+      " Record the number of commas found in the actual help string
+      let l:commas_found = 0
+
+      " Iterate through the help string, looking for the comma that
+      " preceeds the name of the parameter being typed
+      let l:last_comma = 0
+      while (l:commas_found < l:param_number) && (l:last_comma < len(s:help_string))
+        if s:help_string[l:last_comma] == ','
+          let l:commas_found += 1
+        endif
+
+        let l:last_comma += 1
+      endwhile
+
+      " If the desired comma was found, highlight the parameter name
+      if (l:commas_found == l:param_number)
+        " Records the beginning of the parameter name
+        let l:name_beginning = l:last_comma
+        " Records the end of the parameter name
+        let l:name_end = l:last_comma
+
+        " Iterate through the help_string, beginning at the position of the
+        " comma that preceeds the parameter name, and find the position of the
+        " beginning and end of the parameter name. The end of the parameter
+        " name is found once ',' or ')' is found
+        while (s:help_string[l:name_end] != ',') &&
+              \ (s:help_string[l:name_end] != ')') &&
+              \ (l:name_end < len(s:help_string))
+          " If whitespace is encountered, the character after it is a canidate
+          " for the beginning of the parameter. Therefore, update the
+          " beginning position
+          if s:help_string[l:name_end] == ' '
+            let l:name_beginning = l:name_end + 1
+          endif
+
+          let l:name_end += 1
+        endwhile
+
+        " Decrement the end position by 1 to place it at the last character of
+        " the parameter name
+        "let l:name_end -= 1
+
+        call prop_add(1, l:name_beginning + 1, {
+              \ 'bufnr': winbufnr(g:HELPER_ID),
+              \ 'length': l:name_end - l:name_beginning,
+              \ 'type': 'current_param'
+              \ })
+      endif
+    endif
+  endfunction
+
+  " ===== Detect_Out_Of_Bounds() =====
+  "
+  " Given the direction the cursor is moving (1 for left, 0 for right), the
+  " function detects whether or nor the cursor is moving outside the function
+  " call, and closes the function helper if so
+  "
+  " ==================================
+  function Detect_Out_Of_Bounds(direction)
+    "if g:HELPER_ID != 0
+      let l:before = Get_Func_Beginning()
+      let l:after = 0
+
+      if a:direction == 1
+        execute "normal! i\<esc>"
+        let l:after = Get_Func_Beginning()
+        execute "normal! i\<Right>\<Right>"
+      elseif a:direction == 0
+        execute "normal! i\<Right>\<Right>\<esc>"
+        let l:after = Get_Func_Beginning()
+        execute "normal! i\<Left>"
+      endif
+
+      if l:before == l:after
+        call Open_Helper()
+      endif
+    "endif
+  endfunction
+
   " ===== Update_Function_Helper() =====
   "
   " Polls updates for generation of the function helper and handles when to
@@ -519,7 +633,56 @@ if s:extension == "c"
     endif
 
     if len(s:help_string) > 0
-      let g:HELPER_ID=popup_create(s:help_string, #{line:"cursor-" . l:y_offset, col:"cursor-" . l:x_offset})
+      let g:HELPER_ID=popup_create(s:help_string, #{
+            \ line: "cursor-" . l:y_offset,
+            \ col: "cursor-" . l:x_offset,
+            \ filter: "Func_Helper_Filter"
+            \ })
+      call prop_type_delete('current_param')
+      call prop_type_add('current_param', {
+            \ 'bufnr': winbufnr(g:HELPER_ID),
+            \ 'highlight' : 'CurrentParam',
+            \ })
+
+      call Detect_Current_Param()
+
+    endif
+  endfunction
+
+  " ===== Func_Helper_Filter() =====
+  "
+  " Provides input filtering for the function helper
+  "
+  " ================================
+
+  function Func_Helper_Filter(id, key)
+    if (a:key == "\<Up>") || (a:key == "\<Down>")
+      call Close_Helper()
+      return 0
+    elseif a:key == "\<Left>"
+      if (col('.') == 1) || (getline('.')[col('.') - 2] == '(')
+        call Close_Helper()
+      else
+        call popup_move(g:HELPER_ID, {
+              \ 'line': "cursor-1",
+              \ 'col': "cursor-1"
+              \ })
+      endif
+
+      return 0
+    elseif a:key == "\<Right>"
+      if (col('.') == len(getline('.')) + 1) || (getline('.')[col('.')] == ')')
+        call Close_Helper()
+      else
+        call popup_move(g:HELPER_ID, {
+              \ 'line': "cursor-1",
+              \ 'col': "cursor+1"
+              \ })
+      endif
+
+      return 0
+    else
+      return 0
     endif
   endfunction
 
@@ -540,7 +703,7 @@ if s:extension == "c"
   " =========================
   function Close_Popup()
     if g:POPUP_ID != 0
-      call popup_close(g:POPUP_ID)
+      call popup_close(g:POPUP_ID, -1)
       let g:POPUP_ID = 0
     endif
   endfunction
@@ -559,7 +722,6 @@ if s:extension == "c"
 
   " Keybinding Changes--------------------------
 
-  inoremap <expr> <Tab> g:POPUP_ID != 0 ? "<esc>:call Select_Option(g:POPUP_ID, g:selected_option)<cr>i<Right>" : "\<Tab>"
-  inoremap <expr> <Down> g:POPUP_ID != 0 ? "\<Down>" : "<esc>:call Close_Helper()<cr>i<Right><Down>"
-  inoremap <expr> <Up> g:POPUP_ID != 0 ? "\<Up>" : "<esc>:call Close_Helper()<cr>i<Right><Up>"
+  inoremap <expr> <Tab> g:POPUP_ID != 0 ?
+        \ "<esc>:call Select_Option(g:POPUP_ID, g:selected_option)<cr>i<Right>" : "\<Tab>"
 endif
