@@ -55,6 +55,10 @@ char *function_helper(char *args) {
     clang_defaultCodeCompleteOptions()
   );
 
+  if (comp_results == NULL) {
+    return "";
+  }
+
   CXCompletionResult *results = comp_results->Results;
 
   for (int i = 0; i < comp_results->NumResults; i++) {
