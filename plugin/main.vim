@@ -70,6 +70,23 @@ if s:extension == "c"
           \ })
   endfunction
 
+  " ===== is_operator() =====
+  "
+  " Determines if the given input is an operator
+  " Returns 1 if so, 0 if not
+  "
+  " =========================
+  function Is_Operator(char)
+    " Iterate through the operator list, checking if the given character is an
+    " operator
+    for i in s:operators
+      if a:char == i
+        return 1
+      endif
+    endfor
+    return 0
+  endfunction
+
   " ===== Select_Option() =====
   "
   " Selects an option from the code completion list and places it into the
@@ -83,9 +100,18 @@ if s:extension == "c"
       " Record the end of the current word that needs to be replaced
       let l:end = col('.')
       " Move the cursor to the beginning of the word to be replaced
-      execute "normal! a \<Esc>b"
+      "execute "normal! a \<Esc>b"
       " Record the beginning of the current word that needs to be replaced
       let l:beginning = col('.')
+
+      let l:is_operator = Is_Operator(getline('.')[l:beginning - 1])
+
+      while l:beginning > 0 && l:is_operator == 0
+        let l:beginning -= 1
+        let l:is_operator = Is_Operator(getline('.')[l:beginning - 1])
+      endwhile
+
+      echom "Beginning: " . l:beginning . " End: " . l:end
 
       " Iterate through the word, deleting the letters to be replaced
       let l:i = 0
@@ -95,7 +121,7 @@ if s:extension == "c"
       endwhile
 
       " Insert the completion string
-      execute "normal! i" . s:parsed_list[a:index] . "\<Del>\<Del>"
+      execute "normal! i\<Right>" . s:parsed_list[a:index]
     endif
   endfunction
 
@@ -194,14 +220,15 @@ if s:extension == "c"
     " Retrieve the column at which to execute code completion. Code completion
     " is intended to be executed after the most recent C operator before the
     " cursor
+    let s:current_col = 1
     if (Get_Last_Token() != -1)
       " If there is a most recent C operator, record the current column as the
       " location at the C operator
-      let s:current_col = Get_Last_Token() - 1
+      let s:current_col = Get_Last_Token() + 1
     else
       " If there is not a most recent C operator, record the current column at
       " the column position of the cursor
-      let s:current_col = col('.') - 1
+      let s:current_col = col('.')
     endif
 
     " Retrieve the current word at the cursor
@@ -211,7 +238,8 @@ if s:extension == "c"
     let s:file_contents = Get_File_Contents()
 
     " If the word at the cursor is not blank, generate a code completion list
-    if (len(l:current_word) > 0)
+    "if (len(l:current_word) > 0)
+    if col('.') != 1 && getline('.')[col('.') - 2] != ' '
       " Call the external C library to generate a code completion list string,
       " passing the appropriate arguments
       let s:engine_string = libcall(s:lib_loc . "/" . s:lib_name, "complete", s:plugin_loc . "\n" . s:file_name . "\n" . s:current_row . "\n" . s:current_col . "\n" . l:current_word . s:file_contents)
