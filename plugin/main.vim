@@ -14,7 +14,7 @@ let g:selected_option = 0
 
 let g:HELPER_ID = 0
 
-let s:operators = [ '(', '[', '>', '!', '~', '+', '-', '*', '&', '/', '%', '<', '=', '^', '|', '&', '?', ':', '.', ',', ' ' ]
+let s:operators = [ '(', '[', '>', '!', '~', '+', '-', '*', '&', '/', '%', '<', '=', '^', '|', '?', ':', '.', ',', ' ' ]
 
 if has('win32unix') || has ('win32')
   let s:plugin_loc = expand('<sfile>:p:h:h')[1] . ":" . strpart(expand('<sfile>:p:h:h'), 2)
@@ -111,8 +111,6 @@ if s:extension == "c"
         let l:is_operator = Is_Operator(getline('.')[l:beginning - 1])
       endwhile
 
-      echom "Beginning: " . l:beginning . " End: " . l:end
-
       " Iterate through the word, deleting the letters to be replaced
       let l:i = 0
       while l:i < (l:end - l:beginning)
@@ -200,9 +198,15 @@ if s:extension == "c"
     " string variable
     let l:index = 0
     while l:index < len(l:line_list)
-      " For each line in the line list, append the line to the content string
-      " variable with a new line before it
-      let l:content_str = l:content_str . "\n" . l:line_list[l:index]
+      let l:pattern = "[([{>!-~+&/%<=^?:., ]assert("
+      if match(l:line_list[l:index], l:pattern) == -1 &&
+            \ match(l:line_list[l:index], "^assert(") == -1
+        " For each line in the line list, append the line to the content string
+        " variable with a new line before it
+        let l:content_str = l:content_str . "\n" . l:line_list[l:index]
+      else
+        let l:content_str = l:content_str . "\n"
+      endif
       let l:index += 1
     endwhile
     return l:content_str
