@@ -5,6 +5,8 @@
 #include <func_helper.h>
 #include <globals.h>
 
+#define FUNC_DEBUG (0)
+
 FILE *helper_debug_log;
 
 char *function_helper(char *args) {
@@ -13,12 +15,14 @@ char *function_helper(char *args) {
     return "FAILED TO POPULATE ARGUMENTS";
   }
 
+#if FUNC_DEBUG
   helper_debug_log = fopen("helper_debug_log.txt", "w");
   if (helper_debug_log == NULL) {
     return "FAILED TO OPEN DEBUG LOG";
   }
 
   fprintf(helper_debug_log, "HELPER DEBUG INITIALIZED...\n\n");
+#endif
 
   // Clang set-up
   if (g_index == NULL) {
@@ -98,43 +102,13 @@ char *function_helper(char *args) {
     g_help_len++;
     function_help[g_help_len] = '\0';
   }
+
+#if FUNC_DEBUG
+  fclose(helper_debug_log);
+#endif
+
   return function_help;
 }
-
-/*
-enum CXChildVisitResult visitor(CXCursor c, CXCursor parent,
-                                CXClientData client_data) {
-  if (((c.kind == CXCursor_FunctionDecl) && (clang_isCursorDefinition(c))) ||
-      ((c.kind == CXCursor_FunctionDecl) && (function_help[0] == '\0'))) {
-    CXString func_name = clang_getCursorSpelling(c);
-    if (compare_strl((char *) client_data, (char *) clang_getCString(func_name))) {
-      gen_help_header((char *) client_data);
-
-      for (int i = 0; i < clang_Cursor_getNumArguments(c); i++) {
-        CXCursor arg = clang_Cursor_getArgument(c, i);
-        CXString type = clang_getTypeSpelling(clang_getCursorType(arg));
-        CXString name = clang_getCursorSpelling(arg);
-        int res = gen_help_arg((char *) clang_getCString(type),
-                               (char *) clang_getCString(name));
-        clang_disposeString(type);
-        clang_disposeString(name);
-
-        if (res) {
-          break;
-        }
-      }
-
-      clang_disposeString(func_name);
-
-      if (clang_isCursorDefinition(c)) {
-        return CXChildVisit_Break;
-      }
-    }
-  }
-
-  return CXChildVisit_Continue;
-}
-*/
 
 int gen_help_header(char *arg) {
   char next;
@@ -162,56 +136,6 @@ int gen_help_header(char *arg) {
   }
 }
 
-/*
-int gen_help_arg(char *type, char *name) {
-  char next;
-  int i = 0;
-  while (((next = type[i]) != '\0') && ((i + g_help_len) < FUNC_HELP_MAX - 5)) {
-    function_help[g_help_len + i] = next;
-    i++;
-  }
-
-  if (((i + g_help_len) == (FUNC_HELP_MAX - 5)) && (next != '\0')) {
-    function_help[g_help_len] = '.';
-    function_help[g_help_len + 1] = '.';
-    function_help[g_help_len + 2] = '.';
-    function_help[g_help_len + 3] = ')';
-    function_help[g_help_len + 4] = '\0';
-    g_help_len = FUNC_HELP_MAX - 1;
-
-    return 1;
-  } else {
-    function_help[g_help_len + i] = ' ';
-    i++;
-    g_help_len += i;
-  }
-
-  int k = 0;
-  while (((next = name[k]) != '\0') && ((k + g_help_len) < FUNC_HELP_MAX - 5)) {
-    function_help[g_help_len + k] = next;
-    k++;
-  }
-
-  if (((g_help_len + k) == (FUNC_HELP_MAX - 5)) && (next != '\0')) {
-    function_help[g_help_len - i] = '.';
-    function_help[g_help_len - i + 1] = '.';
-    function_help[g_help_len - i + 2] = '.';
-    function_help[g_help_len - i + 3] = ')';
-    function_help[g_help_len - i + 4] = '\0';
-    g_help_len = FUNC_HELP_MAX - 1;
-
-    return 1;
-  } else {
-    function_help[g_help_len + k] = ',';
-    function_help[g_help_len + k + 1] = ' ';
-    k += 2;
-    g_help_len += k;
-
-    return 0;
-  }
-}
-*/
-
 int gen_help_arg(char *arg) {
   char next;
   int i = 0;
@@ -236,6 +160,7 @@ int gen_help_arg(char *arg) {
     return 0;
   }
 }
+
 int populate_function_helper_args(char *arg_str) {
   // Reset the function helper string
 

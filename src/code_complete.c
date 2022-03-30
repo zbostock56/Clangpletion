@@ -5,12 +5,15 @@
 #include <code_complete.h>
 #include <globals.h>
 
+#define COMP_DEBUG (0)
+
 char *complete(char *args) {
   int pop_result = populate_completion_args(args);
   if (pop_result) {
     return "FAILED TO POPULATE ARGUMENTS";
   }
 
+#if COMP_DEBUG
   char *debug_path = (char *) malloc(g_plugin_loc_len + 19);
   sprintf(debug_path, "%s/src/debug_log.txt", PLUGIN_LOC);
 
@@ -19,14 +22,13 @@ char *complete(char *args) {
   if (debug_log == NULL) {
     return "DEBUG FAILED";
   }
-/*
+
   fprintf(debug_log, "DEGUG INITIALIZED\n\n");
 
   fprintf(debug_log, "Plugin Location: %s Buf Size: %lld\nFilename: %s Buf Size: %lld\nRow: %d\nCol: %d\nWord: %s Buf Size: %lld\n"
           "========== CONTENTS ==========\n%s\n=========== CONTENTS END ==========\nBuf Size: %lld\n",
           PLUGIN_LOC, g_plugin_loc_max, FILENAME, g_filename_max, ROW, COL, WORD, g_token_max, CONTENTS, g_contents_max);
-*/
-  //fclose(debug_log);
+#endif
 
   // Clang set-up
   if (g_index == NULL) {
@@ -66,7 +68,8 @@ char *complete(char *args) {
     return "Null";
   }
 
-  /*for (int i = 0; i < comp_results->NumResults; i++) {
+#if COMP_DEBUG
+  for (int i = 0; i < comp_results->NumResults; i++) {
     CXCompletionResult result = (comp_results->Results)[i];
     CXCompletionString comp_str = result.CompletionString;
 
@@ -79,8 +82,9 @@ char *complete(char *args) {
       clang_disposeString(chunk_txt);
     }
     fprintf(debug_log, "=================================\n\n");
-  }*/
+  }
   fclose(debug_log);
+#endif
 
   int position = 0;
   int num_results = comp_results->NumResults;
