@@ -114,7 +114,7 @@ if s:extension == "c"
       " Iterate through the word, deleting the letters to be replaced
       let l:i = 0
       while l:i < (l:end - l:beginning)
-        execute "normal! \<Del>"
+        execute "normal! \<Del>i"
         let l:i += 1
       endwhile
 
