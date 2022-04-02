@@ -99,8 +99,6 @@ if s:extension == "c"
     if (a:index > -1) && (len(s:parsed_list) != 0)
       " Record the end of the current word that needs to be replaced
       let l:end = col('.')
-      " Move the cursor to the beginning of the word to be replaced
-      "execute "normal! a \<Esc>b"
       " Record the beginning of the current word that needs to be replaced
       let l:beginning = col('.')
 
@@ -112,14 +110,21 @@ if s:extension == "c"
       endwhile
 
       " Iterate through the word, deleting the letters to be replaced
+      let l:deletes = ""
       let l:i = 0
       while l:i < (l:end - l:beginning)
-        execute "normal! \<Del>i"
+        "execute "normal! \<Del>i"
+        let l:deletes = l:deletes . "\<Del>"
         let l:i += 1
       endwhile
 
+      let l:new_end = l:beginning + len(s:parsed_list[a:index])
+
       " Insert the completion string
       execute "normal! i\<Right>" . s:parsed_list[a:index]
+      execute "normal! " . l:beginning . "|"
+      execute "normal! i\<Right>" . l:deletes
+      execute "normal! " . l:new_end . "|"
     endif
   endfunction
 
