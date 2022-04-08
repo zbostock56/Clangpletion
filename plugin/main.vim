@@ -350,6 +350,9 @@ if s:extension == "c"
       call popup_close(g:POPUP_ID, g:selected_option)
 
       return 1
+    elseif (a:key == "\<BS>" || a:key == "\<Del>")
+      call Close_Popup()
+      return 0
     else
       return 0
     endif
