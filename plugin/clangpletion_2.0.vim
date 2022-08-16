@@ -184,9 +184,6 @@ function Func_Helper()
     endwhile
   endif
 
-  echom "Col: " . l:col
-  echom "Func name: " . l:func_name
-
   if len(l:func_name) > 0 && l:func_name != s:cur_func_name
     let s:func_helper = libcall(s:lib_loc . "/" . s:lib_name, "func_helper", s:file_dir . "\n" . s:temp_dir . "\n" . s:filename . "\n" . l:func_name . "\n" . l:row . "\n" . l:col . "\n" . s:include_list)
     let s:cur_func_name = l:func_name
