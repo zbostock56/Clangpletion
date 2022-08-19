@@ -1,5 +1,5 @@
 compile:
-	gcc -Wall -fPIC -c code_complete.c func_helper.c globals.c -I../include
-	gcc -shared -O3 -o libclangpletion.so code_complete.o func_helper.o globals.o ../data_files/libclang-10.0.0.so
-	rm code_complete.o func_helper.o globals.o
+	gcc -Wall -I../include -fPIC -c code_complete_2.0.c helpers.c init.c
+	gcc -shared -O3 -o libclangpletion.so code_complete_2.0.o helpers.o init.o /lib/libclang.so
+	rm code_complete_2.0.o helpers.o init.o
 	cp ./libclangpletion.so ../plugin

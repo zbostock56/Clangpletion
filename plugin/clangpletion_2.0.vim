@@ -347,21 +347,21 @@ let s:func_popup_id = 0
 " ========== Auto commands ==========
 
 augroup ChangedText
-  autocmd TextChangedI *.c :call Update_File()
-  autocmd TextChangedI *.c :call Func_Helper()
-  autocmd TextChangedI *.c :call Auto_Complete()
-  autocmd TextChangedI *.c :call Refresh_Popup()
+  autocmd TextChangedI *.[ch] :call Update_File()
+  autocmd TextChangedI *.[ch] :call Func_Helper()
+  autocmd TextChangedI *.[ch] :call Auto_Complete()
+  autocmd TextChangedI *.[ch] :call Refresh_Popup()
 augroup END
 
 augroup BufChange
-  autocmd BufEnter *.c :call Close_Func_Popup()
-  autocmd BufEnter *.c :call Close_Popup()
-  autocmd BufEnter *.c :call Init()
+  autocmd BufEnter *.[ch] :call Close_Func_Popup()
+  autocmd BufEnter *.[ch] :call Close_Popup()
+  autocmd BufEnter *.[ch] :call Init()
 augroup END
 
 augroup LeaveInsert
-  autocmd InsertLeave *.c :call Close_Func_Popup()
-  autocmd InsertLeave *.c :call Close_Popup()
+  autocmd InsertLeave *.[ch] :call Close_Func_Popup()
+  autocmd InsertLeave *.[ch] :call Close_Popup()
 augroup END
 
 " ========== Highlighting ==========
