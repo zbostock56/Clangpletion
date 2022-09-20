@@ -311,7 +311,7 @@ endfunction
 
 function Func_Filter(winid, key)
   if a:key == "\<Up>" || a:key == "\<Down>"
-    if l:autocomp_popup_id == 0
+    if s:autocomp_popup_id == 0
       call Close_Func_Popup()
     endif
     return 0
