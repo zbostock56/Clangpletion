@@ -49,8 +49,6 @@
 
 Clangpletion works just the same as any other completion engine. Type and the completion engine will give you suggestions!
 
-_For more examples, please refer to the [Documentation](https://vimhelp.org/)_
-
 ### Adding recognition of additional non-relative headers
 By default, Clangpletion will not recognize headers specified via `#include <...>` that are not located in the default include directories searched by clang (i.e. Clangpletion does not automatically search in include directories that are specified by the `-I` tag during the program's compilation). To add recognition of these header files, call the following function via vim's `call` command:
 ```
@@ -82,7 +80,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Zack Bostock - [LinkedIn](https://www.linkedin.com/in/zack-bostock-932a5921b/)
 
-Jack Saysana - [LinkedIn](https://github.com/Jack-Saysana)
+Jack Saysana - [LinkedIn](https://www.linkedin.com/in/jackson-saysana-a5993822a/)
 
 Project Link: [https://github.com/zbostock56/Clangpletion](https://github.com/zbostock56/Clangpletion)
 
