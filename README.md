@@ -51,15 +51,24 @@ Clangpletion works just the same as any other completion engine. Type and the co
 
 _For more examples, please refer to the [Documentation](https://vimhelp.org/)_
 
+### Adding recognition of additional non-relative headers
+By default, Clangpletion will not recognize headers specified via `#include <...>` that are not located in the default include directories searched by clang (i.e. Clangpletion does not automatically search in include directories that are specified by the `-I` tag during the program's compilation). To add recognition of these header files, call the following function via vim's `call` command:
+```
+Add_Include_Path("Absolute/Path/To/Include/Dir")
+```
+For example...
+```
+:call Add_Include_Path("/home/jack/my_project/include")
+```
+
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Roadmap
 
-- [X] Increased Speed
-  - [X] Optimize Algorithms
+- [ ] Improved performance for large header sets
+- [ ] Implementation of config files for specifying additional include paths
 - [ ] Greater support for Mac OS
-- [X] Suggestions for Functions
-
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
