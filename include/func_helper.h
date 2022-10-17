@@ -7,11 +7,8 @@
 #define EQUAL (0)
 #define LESS (1)
 #define GREATER (2)
-
-typedef struct init_args {
-  char *temp_dir;
-  char *contents;
-} INIT_ARGS;
+#define MAX_FUNC_HELPER_LEN (100)
+#define INCLUDE_LIST_STARTING_LEN (10)
 
 typedef struct complete_args {
   char *file_dir;
@@ -39,15 +36,17 @@ typedef struct add_args {
   size_t *buffer_len;
 } ADD_ARGS;
 
-INIT_ARGS *parse_init_args(char *);
-COMPLETE_ARGS *parse_complete_args(char *);
 
-char *parse_arg(char *, size_t *);
-char *offset_strncpy(char *, const char *, size_t, size_t);
-int begins_with(const char *, const char *);
-int get_typed_text(CXCompletionString *);
+extern char g_func_helper[MAX_FUNC_HELPER_LEN];
+char *func_helper(char *);
+
 void binary_search(char *token, int token_len,
                    CXCompletionResult *comp_results,
                    unsigned int num_results, size_t *buffer_len,
                    int comp_func(COMP_ARGS *args),
                    void add_func(ADD_ARGS *args));
+int func_helper_compare(COMP_ARGS *args);
+void func_helper_add(ADD_ARGS *args);
+
+COMPLETE_ARGS *parse_complete_args(char *);
+char *offset_strncpy(char *, const char *, size_t, size_t);

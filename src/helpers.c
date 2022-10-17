@@ -266,3 +266,137 @@ int begins_with(const char *str, const char *token) {
 
   return 0;
 }
+
+/*
+ * ========== GET_TYPED_TEXT() ==========
+ * DESC: Returns the typed-text portion for
+ * a given code completion string
+ *
+ * ARGUMENTS:
+ * - CXCompletionString comp_string: pointer
+ *   to code completion string
+ *
+ * RETURNS:
+ * Index of CXString corresponding to the
+ * typed text chunk
+ * ======================================
+ */
+int get_typed_text(CXCompletionString *comp_string) {
+  unsigned int numChunks = clang_getNumCompletionChunks(*comp_string);
+
+  for (int i = 0; i < numChunks; i++) {
+    if (clang_getCompletionChunkKind(*comp_string, i) == CXCompletionChunk_TypedText) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+/*
+ * ========== BINARY_SEARCH() ==========
+ * DESC: Performs binary search on a completion result,
+ * utilizing the given comparison function and add function.
+ *
+ * ARGUMENTS:
+ * - char *token: Token being searched for in completion list
+ * - int token_len: length of given token
+ * - unsigned int num_results: Number of code completion
+ *   results
+ * - size_t *buffer_len: Pointer to the length of the buffer
+ *   that will be populated by the algorithm
+ * - int comp_func(COMP_ARGS *args): Comparison function used
+ *   by the algorithm to determine if the given token has been
+ *   found. Must return:
+ *   - EQUAL
+ *   - LESS
+ *   - GREATER
+ *   - -1 (if current entry in code completion list is invalid for
+ *         comparison)
+ * - void add_func(ADD_ARGS *args): Function to be used once
+ *   comparison returns EQUAL
+ *
+ * =====================================
+ */
+void binary_search(char *token, int token_len,
+                   CXCompletionResult *comp_results,
+                   unsigned int num_results, size_t *buffer_len,
+                   int comp_func(COMP_ARGS *args),
+                   void add_func(ADD_ARGS *args)) {
+  int adding_completions = 1;
+
+  unsigned int median = num_results / 2;
+  unsigned int cur_index = median;
+
+  unsigned int left_bound = 0;
+  unsigned int right_bound = num_results - 1;
+
+  while (adding_completions && left_bound < right_bound) {
+    COMP_ARGS comp_args;
+    comp_args.token = token;
+    comp_args.token_len = token_len;
+    comp_args.comp_results = comp_results;
+    comp_args.index = cur_index;
+    int comp = comp_func(&comp_args);
+
+    if (comp == EQUAL) {
+      ADD_ARGS add_args;
+      add_args.token = token;
+      add_args.comp_results = comp_results;
+      add_args.num_results = num_results;
+      add_args.cur_index = cur_index;
+      add_args.buffer_len = buffer_len;
+      add_func(&add_args);
+      adding_completions = 0;
+    } else if (comp == LESS) {
+      // Token occurs before chunk
+      if (cur_index <= median) {
+        //If the current index is before the median, the new right bound is
+        //defined by the current index, instead of the median to prevent
+        //reanalyzing invalid entries
+        right_bound = cur_index - 1;
+      } else {
+        right_bound = median - 1;
+      }
+      median = (left_bound + cur_index) / 2;
+      cur_index = median;
+    } else if (comp == GREATER) {
+      // Token occurs after chunk
+      if (cur_index >= median) {
+        //If the current index is after the median, the new left bound is
+        //defined by the current index, instead of the median to prevent
+        //reanalyzing invalid entries
+        left_bound = cur_index + 1;
+      } else {
+        //If the current index is before the median, all entries left of the
+        //median are invalid entries. Therefore, there is nothing to analyze
+        //further and the token does not exist.
+        adding_completions = 0;
+      }
+      median = (cur_index + right_bound) / 2;
+      cur_index = median;
+    } else {
+      //The comparison failed for the current completion result. Goal is now to
+      //move the current index to an index inside the current partition that
+      //is a valid completion result
+
+      if (cur_index == right_bound) {
+        //If the current index is the right bound, the entire right side of
+        //the partition has invalid text. Now start looking to the left side.
+        cur_index = median - 1;
+      } else if (cur_index == left_bound) {
+        //If the current index is the left bound, no values in the partition have
+        //valid typed text. Therefore, there is no completions to add.
+        adding_completions = 0;
+      } else if (cur_index < median) {
+        // Continue looking for valid entries on the left side
+        cur_index--;
+      } else {
+        // Continue looking for valid entries on the right side
+        cur_index++;
+      }
+    }
+  }
+}
+
+
